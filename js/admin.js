@@ -8,21 +8,34 @@ function val(id) {
   return el ? el.value : '';
 }
 
+/* ── SHA-256 哈希工具 ────────────────────── */
+function hashPw(pw) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw))
+    .then(function (buf) {
+      return Array.from(new Uint8Array(buf))
+        .map(function (b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    });
+}
+
 /* ── 登入 / 登出 ─────────────────────────── */
 function doLogin() {
-  var d     = getData();
   var input = document.getElementById('pw-input').value;
-  if (input === d.pw) {
-    document.getElementById('gate-err').style.display = 'none';
-    sessionStorage.setItem('fgh_admin', '1');
-    showAdmin();
-  } else {
-    var err = document.getElementById('gate-err');
-    err.textContent = '密码错误，请重试';
-    err.style.display = 'block';
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-  }
+  if (!input) return;
+  hashPw(input).then(function (hash) {
+    var d = getData();
+    if (hash === d.pw) {
+      document.getElementById('gate-err').style.display = 'none';
+      sessionStorage.setItem('fgh_admin', '1');
+      showAdmin();
+    } else {
+      var err = document.getElementById('gate-err');
+      err.textContent = '密码错误，请重试';
+      err.style.display = 'block';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  });
 }
 
 function logout() {
@@ -313,7 +326,6 @@ function translateAll() {
 
 /* ── 修改密码 ────────────────────────────── */
 function changePw() {
-  var d    = getData();
   var old  = document.getElementById('pw-old').value;
   var nw   = document.getElementById('pw-new').value;
   var conf = document.getElementById('pw-confirm').value;
@@ -321,10 +333,6 @@ function changePw() {
   var errEl = document.getElementById('pw-err');
   okEl.style.display = errEl.style.display = 'none';
 
-  if (old !== d.pw) {
-    errEl.textContent = '当前密码错误，请重试';
-    errEl.style.display = 'block'; return;
-  }
   if (nw.length < 4) {
     errEl.textContent = '新密码至少需要 4 位';
     errEl.style.display = 'block'; return;
@@ -334,11 +342,20 @@ function changePw() {
     errEl.style.display = 'block'; return;
   }
 
-  d.pw = nw;
-  saveData(d);
-  okEl.style.display = 'block';
-  ['pw-old', 'pw-new', 'pw-confirm'].forEach(function (id) {
-    document.getElementById(id).value = '';
+  var d = getData();
+  hashPw(old).then(function (oldHash) {
+    if (oldHash !== d.pw) {
+      errEl.textContent = '当前密码错误，请重试';
+      errEl.style.display = 'block'; return;
+    }
+    hashPw(nw).then(function (newHash) {
+      d.pw = newHash;
+      saveData(d);
+      okEl.style.display = 'block';
+      ['pw-old', 'pw-new', 'pw-confirm'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+    });
   });
 }
 

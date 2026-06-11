@@ -5,7 +5,7 @@
 
 /* ── 默认数据（唯一来源）─────────────────── */
 var DEFAULT = {
-  pw: 'admin888',
+  pw: 'aaffebecec560fec66e75f24062224ffa4e07696d2ae9a1fee3707c3f8fd9373', /* SHA-256，默认密码 admin888 */
   contact: {
     display: '012-667 7895',
     wa:      '60126677895',
