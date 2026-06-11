@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 — 富贵花</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ══ 登入页 ═════════════════════════════════
+     初始显示；登入成功后隐藏
+══════════════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">🌸</div>
+    <h2>管理后台登入</h2>
+    <p>请输入管理员密码</p>
+    <div class="pw-wrap">
+      <input type="password" id="pw-input" placeholder="输入密码" autocomplete="current-password">
+      <button class="pw-eye" onclick="togglePw('pw-input', this)" tabindex="-1" aria-label="显示/隐藏密码">
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+    <div class="gate-err" id="gate-err"></div>
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-lock-open"></i>&nbsp; 进入后台
+    </button>
+    <p class="gate-hint">首次使用默认密码：admin888</p>
+  </div>
+</div>
+
+<!-- ══ 管理面板（登入后显示）════════════════ -->
+<div id="panel">
+
+  <!-- 顶部栏 -->
+  <div class="admin-header">
+    <h1>
+      <i class="fas fa-spa"></i>
+      富贵花 <span>管理后台</span>
+    </h1>
+    <div class="header-btns">
+      <a href="index.html" target="_blank" rel="noopener" class="btn-preview">
+        <i class="fas fa-eye"></i>
+        <span class="preview-text">查看网站</span>
+      </a>
+      <button class="btn-logout" onclick="logout()">
+        <i class="fas fa-right-from-bracket"></i> 退出
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab 栏 -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" onclick="showTab('contact',  this)" role="tab"><i class="fas fa-phone"></i>     联系方式</button>
+    <button class="tab-btn"        onclick="showTab('hero',     this)" role="tab"><i class="fas fa-star"></i>      首页横幅</button>
+    <button class="tab-btn"        onclick="showTab('stats',    this)" role="tab"><i class="fas fa-chart-bar"></i> 数据栏</button>
+    <button class="tab-btn"        onclick="showTab('videos',   this)" role="tab"><i class="fas fa-play-circle"></i>教学视频</button>
+    <button class="tab-btn"        onclick="showTab('products', this)" role="tab"><i class="fas fa-flask"></i>     药水产品</button>
+    <button class="tab-btn"        onclick="showTab('steps',    this)" role="tab"><i class="fas fa-list-ol"></i>   使用步骤</button>
+    <button class="tab-btn"        onclick="showTab('settings', this)" role="tab"><i class="fas fa-gear"></i>      设置</button>
+  </div>
+
+  <!-- ── Tab：联系方式 ── -->
+  <div class="tab-panel active" id="tab-contact" role="tabpanel">
+    <div class="tip">
+      <i class="fas fa-circle-info"></i>
+      修改后点击底部「保存所有修改」，网站上所有 WhatsApp 链接和电话号码会同步更新。
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📞</span> 联系方式</div>
+      <div class="form-row">
+        <div class="field">
+          <label>显示电话号码（网站上呈现的号码）</label>
+          <input type="text" id="c-display" placeholder="例：012-667 7895">
+        </div>
+        <div class="field">
+          <label>WhatsApp 号码（国际格式，不含 +）</label>
+          <input type="tel" id="c-wa" placeholder="例：60126677895">
+          <span class="field-hint">马来西亚号码前加 60，例如 012-667 7895 → 60126677895</span>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>联系人名字</label>
+          <input type="text" id="c-name" placeholder="例：阿迪">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab：首页横幅 ── -->
+  <div class="tab-panel" id="tab-hero" role="tabpanel">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🌸</span> 首页横幅文字</div>
+      <div class="form-row full">
+        <div class="field">
+          <label>顶部标签文字</label>
+          <input type="text" id="h-tag" placeholder="例：🌸 专业富贵花种植养护">
+        </div>
+      </div>
+      <div class="tip" style="margin: 0 0 16px">
+        <i class="fas fa-circle-info"></i>
+        大标题分三段：<strong>前段</strong> + <strong>金色高亮词</strong> + <strong>后段</strong>。
+        例：「让你的 」+「富贵花」+「开得更美、更旺盛」
+      </div>
+      <div class="form-row three">
+        <div class="field">
+          <label>标题前段</label>
+          <input type="text" id="h-pre" placeholder="例：让你的 ">
+        </div>
+        <div class="field">
+          <label>金色高亮词</label>
+          <input type="text" id="h-em" placeholder="例：富贵花">
+        </div>
+        <div class="field">
+          <label>标题后段</label>
+          <input type="text" id="h-post" placeholder="例：开得更美、更旺盛">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>副标题（按 Enter 换行，网站上会显示为两行）</label>
+          <textarea id="h-sub" rows="3"
+            placeholder="完整种植教学视频 · 天然草本养护药水&#10;专人指导，全程跟进，简单易学"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab：数据栏 ── -->
+  <div class="tab-panel" id="tab-stats" role="tabpanel">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📊</span> 数据栏（Hero 下方的四个数字）</div>
+      <div id="stats-fields"><!-- 由 admin.js 填充 --></div>
+    </div>
+  </div>
+
+  <!-- ── Tab：教学视频 ── -->
+  <div class="tab-panel" id="tab-videos" role="tabpanel">
+    <div class="tip">
+      <i class="fab fa-youtube" style="color:#FF0000"></i>
+      <strong>如何添加 YouTube 视频：</strong>
+      打开 YouTube 视频页面 → 复制网址栏链接
+      （例：https://www.youtube.com/watch?v=xxxxx）→ 粘贴到「YouTube 链接」栏。
+      系统会自动转换格式，无需手动修改。
+    </div>
+    <div id="videos-fields"><!-- 由 admin.js 填充 --></div>
+  </div>
+
+  <!-- ── Tab：药水产品 ── -->
+  <div class="tab-panel" id="tab-products" role="tabpanel">
+    <div class="tip">
+      <i class="fas fa-image"></i>
+      <strong>产品图片：</strong>
+      可输入 emoji（例：🌸）或图片网址。
+      如需上传照片，先将图片上传至
+      <strong>imgbb.com</strong>（免费），复制图片链接粘贴即可。
+    </div>
+    <div id="products-fields"><!-- 由 admin.js 填充 --></div>
+  </div>
+
+  <!-- ── Tab：使用步骤 ── -->
+  <div class="tab-panel" id="tab-steps" role="tabpanel">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">📋</span> 使用步骤（共 4 步）</div>
+      <div id="steps-fields"><!-- 由 admin.js 填充 --></div>
+    </div>
+  </div>
+
+  <!-- ── Tab：设置 ── -->
+  <div class="tab-panel" id="tab-settings" role="tabpanel">
+
+    <!-- 修改密码 -->
+    <div class="card pw-section">
+      <div class="card-title"><span class="ct-icon">🔒</span> 修改管理密码</div>
+      <div class="field" style="margin-bottom:14px">
+        <label>当前密码</label>
+        <div class="pw-wrap" style="margin:0">
+          <input type="password" id="pw-old" placeholder="输入当前密码" autocomplete="current-password">
+          <button class="pw-eye" onclick="togglePw('pw-old', this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>新密码（至少 4 位）</label>
+        <div class="pw-wrap" style="margin:0">
+          <input type="password" id="pw-new" placeholder="输入新密码" autocomplete="new-password">
+          <button class="pw-eye" onclick="togglePw('pw-new', this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>确认新密码</label>
+        <div class="pw-wrap" style="margin:0">
+          <input type="password" id="pw-confirm" placeholder="再次输入新密码" autocomplete="new-password">
+          <button class="pw-eye" onclick="togglePw('pw-confirm', this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <button class="btn-change-pw" onclick="changePw()">
+        <i class="fas fa-key"></i> 更改密码
+      </button>
+      <div class="pw-ok"  id="pw-ok"><i class="fas fa-check-circle"></i> 密码已更改！</div>
+      <div class="pw-err" id="pw-err"></div>
+    </div>
+
+    <!-- 重置数据 -->
+    <div class="card" style="max-width:420px">
+      <div class="card-title"><span class="ct-icon">🗑</span> 重置数据</div>
+      <p style="font-size:.9rem;color:var(--gray);margin-bottom:16px;line-height:1.6">
+        将所有内容恢复为默认值，此操作<strong>不可撤销</strong>。
+      </p>
+      <button class="btn-reset" onclick="resetData()">
+        <i class="fas fa-rotate-left"></i> 重置为默认值
+      </button>
+    </div>
+  </div>
+
+</div><!-- /panel -->
+
+<!-- 保存栏（登入后显示） -->
+<div class="save-bar" id="save-bar" style="display:none">
+  <div id="save-msg"></div>
+  <button class="btn-translate" id="btn-translate" onclick="translateAll()">
+    <i class="fas fa-language"></i> <span>自动翻译 EN/MY</span>
+  </button>
+  <button class="btn-save" onclick="saveAll()">
+    <i class="fas fa-floppy-disk"></i> 保存所有修改
+  </button>
+</div>
+
+<!-- 先加载共享数据，再加载管理逻辑 -->
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

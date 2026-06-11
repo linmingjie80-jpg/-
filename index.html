@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>富贵花 — 种植教学 &amp; 专业养护药水</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ══ 导航 ══════════════════════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">🌸 <em>富贵花</em>&nbsp;种植养护</a>
+    <!-- 语言切换（始终可见，不随汉堡菜单隐藏） -->
+    <div class="lang-sw">
+      <button id="lang-zh" class="lang-btn" onclick="switchLang('zh')">中</button>
+      <button id="lang-en" class="lang-btn" onclick="switchLang('en')">EN</button>
+      <button id="lang-my" class="lang-btn" onclick="switchLang('my')">MY</button>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="打开菜单">
+      <i class="fas fa-bars" id="navIcon"></i>
+    </button>
+    <div class="nav-menu" id="navMenu">
+      <a href="#videos"><i class="fas fa-play-circle"></i> <span data-i18n="nav_videos">教学视频</span></a>
+      <a href="#products"><i class="fas fa-flask"></i> <span data-i18n="nav_products">药水购买</span></a>
+      <a href="#howto"><i class="fas fa-list-ol"></i> <span data-i18n="nav_howto">使用方法</span></a>
+      <a href="#contact"><i class="fas fa-phone"></i> <span data-i18n="nav_contact">联系我们</span></a>
+      <a class="nav-wa-btn wa-link" href="#" target="_blank" rel="noopener">
+        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ Hero ══════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-tag"><span id="hero-tag-txt">🌸 专业富贵花种植养护</span></div>
+  <h1>
+    <span id="hero-pre">让你的 </span><em id="hero-em">富贵花</em><br>
+    <span id="hero-post">开得更美、更旺盛</span>
+  </h1>
+  <p id="hero-sub">完整种植教学视频 · 天然草本养护药水<br>专人指导，全程跟进，简单易学</p>
+  <div class="hero-btns">
+    <a href="#videos"   class="btn-primary"><i class="fas fa-play-circle"></i> <span data-i18n="btn_watch">观看教学视频</span></a>
+    <a href="#products" class="btn-ghost">  <i class="fas fa-flask"></i> <span data-i18n="btn_buy">选购养护药水</span></a>
+  </div>
+</section>
+
+<!-- ══ 数据栏 ══════════════════════════════════ -->
+<div class="stats">
+  <div class="stat"><span class="stat-num" id="stat-num-0">500+</span><span class="stat-lbl" id="stat-lbl-0">学员成功种植</span></div>
+  <div class="stat"><span class="stat-num" id="stat-num-1">6</span>   <span class="stat-lbl" id="stat-lbl-1">专业教学视频</span></div>
+  <div class="stat"><span class="stat-num" id="stat-num-2">100%</span><span class="stat-lbl" id="stat-lbl-2">天然草本配方</span></div>
+  <div class="stat"><span class="stat-num" id="stat-num-3">3款</span> <span class="stat-lbl" id="stat-lbl-3">专业养护药水</span></div>
+</div>
+
+<!-- ══ 教学视频 ════════════════════════════════ -->
+<section class="sec" id="videos">
+  <div class="sec-head">
+    <h2 data-i18n-html="sec_videos_h">🎬 富贵花 <span>教学视频</span></h2>
+    <p data-i18n="sec_videos_p">由专家亲自示范，从零开始，轻松掌握每一个种植技巧</p>
+    <div class="divider"></div>
+  </div>
+  <div class="video-grid" id="video-grid">
+    <!-- 由 site.js 动态渲染 -->
+  </div>
+</section>
+
+<!-- ══ 药水产品 ════════════════════════════════ -->
+<section class="sec alt" id="products">
+  <div class="sec-head">
+    <h2 data-i18n-html="sec_prods_h">🧪 专业 <span>养护药水</span></h2>
+    <p data-i18n="sec_prods_p">天然草本配方，安全无毒，让富贵花开得更旺、更美、更持久</p>
+    <div class="divider"></div>
+  </div>
+  <div class="prod-grid" id="prod-grid">
+    <!-- 由 site.js 动态渲染 -->
+  </div>
+</section>
+
+<!-- ══ 使用步骤 ════════════════════════════════ -->
+<section class="sec" id="howto">
+  <div class="sec-head">
+    <h2 data-i18n-html="sec_steps_h">📋 <span>使用方法</span> — 简单 4 步</h2>
+    <p data-i18n="sec_steps_p">按步骤操作，效果最大化，简单易学</p>
+    <div class="divider"></div>
+  </div>
+  <div class="steps" id="steps-grid">
+    <!-- 由 site.js 动态渲染 -->
+  </div>
+</section>
+
+<!-- ══ 联系 ══════════════════════════════════ -->
+<section class="contact-sec" id="contact">
+  <h2 data-i18n-html="contact_h">有疑问？<span>WhatsApp</span> 咨询我</h2>
+  <p data-i18n="contact_p">专人为你解答种植问题、推荐合适药水，随时都可以问！</p>
+  <div class="contact-box">
+    <div class="contact-phone" id="contact-phone">012-667 7895</div>
+    <div class="contact-name"  id="contact-name">阿迪 — 富贵花种植顾问</div>
+  </div>
+  <br>
+  <a class="wa-big wa-link" href="#" target="_blank" rel="noopener">
+    <i class="fa-brands fa-whatsapp"></i> <span data-i18n="contact_wa">立即 WhatsApp 咨询</span>
+  </a>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p data-i18n-html="footer_p">© 2025 富贵花专业种植养护 &nbsp;|&nbsp; <span>全马配送</span> &nbsp;|&nbsp; 天然草本配方</p>
+  <a href="admin.html" class="admin-link">⚙ 管理后台</a>
+</footer>
+
+<!-- 桌面浮球 WA -->
+<a class="float-wa wa-link" href="#" target="_blank" rel="noopener">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<!-- 手机底部 WA 栏 -->
+<a class="bottom-wa-bar wa-link" href="#" target="_blank" rel="noopener">
+  <i class="fa-brands fa-whatsapp"></i>
+  <span><span data-i18n="bottom_wa">WhatsApp 咨询 </span><span id="bottom-wa-name">阿迪</span></span>
+</a>
+
+<!-- 先加载共享数据，再加载页面逻辑 -->
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
