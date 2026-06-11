@@ -20,6 +20,7 @@
 body {
   font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
   background: var(--bg); color: var(--text); font-size: 16px; min-height: 100vh;
+  -webkit-text-size-adjust: 100%; /* 防止 iOS 自动放大字体 */
 }
 
 /* ══ 登入页 ══════════════════════════════════ */
@@ -239,13 +240,66 @@ body {
 .btn-reset:hover { background: #ffebee; }
 
 /* ── 响应式 ────────────────────────────────── */
+
+/* 所有输入框统一触摸高度 */
+.field input, .field select { min-height: 48px; }
+.field textarea             { min-height: 80px; }
+
+@media (max-width: 768px) {
+  /* 卡片内距缩小 */
+  .card { padding: 18px 16px; }
+  .item-card { padding: 14px; }
+}
+
 @media (max-width: 640px) {
+  /* 表单 */
   .form-row, .form-row.three { grid-template-columns: 1fr; }
-  .tab-btn { padding: 14px 12px; font-size: .82rem; }
-  .tab-panel { padding: 16px 16px 110px; }
+  .tab-panel { padding: 16px 14px 140px; }
+
+  /* 顶部栏 */
   .admin-header h1 { font-size: .95rem; }
   .btn-preview .preview-text { display: none; }
-  .gate-box { padding: 36px 22px; }
-  .save-bar { padding: 12px 16px; }
-  .btn-save { padding: 12px 24px; font-size: .92rem; }
+
+  /* Tab 栏 */
+  .tab-btn { padding: 14px 11px; font-size: .8rem; gap: 5px; }
+  .tab-btn i { font-size: .82rem; }
+
+  /* 登入框 */
+  .gate-box { padding: 36px 20px; }
+
+  /* ── 保存栏（手机版）──────────────────────
+     进度文字独占一行，两个按钮并排撑满宽度  */
+  .save-bar {
+    flex-wrap: wrap;
+    justify-content: stretch;
+    padding: 10px 14px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
+  }
+  #save-msg {
+    width: 100%;
+    justify-content: center;
+    font-size: .85rem;
+  }
+  .btn-translate {
+    flex: 1;
+    justify-content: center;
+    padding: 13px 10px;
+    font-size: .82rem;
+    min-height: 48px;
+    border-width: 1.5px;
+  }
+  .btn-save {
+    flex: 1;
+    justify-content: center;
+    padding: 13px 10px;
+    font-size: .88rem;
+    min-height: 48px;
+  }
+}
+
+/* iPhone SE / 窄屏：翻译按钮只显示图标 */
+@media (max-width: 360px) {
+  .btn-translate span { display: none; }
+  .btn-translate i { font-size: 1.15rem; }
 }
