@@ -463,16 +463,39 @@ function testGitHubSync() {
   var token = (ghEl ? ghEl.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
   if (!token) { alert('请先填写 GitHub Token，再点测试。'); return; }
 
+  /* ── Fine-grained token 检测 ─────────── */
+  if (token.indexOf('github_pat_') === 0) {
+    alert(
+      '⚠ 检测到你使用的是 Fine-grained token（github_pat_ 开头）。\n' +
+      '这种 Token 需要手动授权每个仓库，步骤较复杂。\n\n' +
+      '建议换成更简单的 Classic token：\n\n' +
+      '① github.com → 右上角头像 → Settings\n' +
+      '② 左侧底部 Developer settings\n' +
+      '   → Personal access tokens → Tokens (classic)\n' +
+      '③ Generate new token (classic)\n' +
+      '   Note：随便填\n' +
+      '   Expiration：No expiration\n' +
+      '   勾选 repo 整个大栏（第一项，不是子项）\n' +
+      '④ Generate token → 复制（ghp_ 开头）\n' +
+      '⑤ 粘贴到此处 → 保存 → 再点测试'
+    );
+    return;
+  }
+
+  /* ── Classic token：直接测试写入 ────── */
   showToast('⏳ 测试写入中…', '');
-  /* 直接测试完整写入流程（推送当前数据） */
   pushToGitHub(getData(), token,
     function () {
       showToast('', '');
-      alert('✅ 同步测试成功！\n写入 GitHub 完全正常，之后保存都会自动同步。\n\n如果之前同步失败，请重新点「保存所有修改」。');
+      alert('✅ 写入测试成功！同步功能完全正常。\n\n之后每次「保存所有修改」都会自动同步到 GitHub。');
     },
     function (err) {
       showToast('', '');
-      alert('❌ 写入测试失败：\n\n' + err + '\n\n请截图发给开发者。');
+      var hint = '';
+      if (err.indexOf('accessible') !== -1) {
+        hint = '\n\n可能原因：Token 勾选了 public_repo 而非 repo 整栏。\n请重新生成 Classic token，勾选 repo（第一大栏）。';
+      }
+      alert('❌ 写入失败：\n\n' + err + hint);
     }
   );
 }
