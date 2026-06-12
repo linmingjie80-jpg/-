@@ -24,7 +24,11 @@ function doLogin() {
   if (!input) return;
   hashPw(input).then(function (hash) {
     var d = getData();
-    if (hash === d.pw) {
+    var isHash    = d.pw && d.pw.length === 64; /* SHA-256 = 64 hex chars */
+    var matched   = isHash ? (hash === d.pw) : (input === d.pw); /* 兼容旧明文密码 */
+    if (matched) {
+      /* 旧明文密码：自动升级为哈希 */
+      if (!isHash) { d.pw = hash; saveData(d); }
       document.getElementById('gate-err').style.display = 'none';
       sessionStorage.setItem('fgh_admin', '1');
       showAdmin();
