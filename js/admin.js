@@ -22,13 +22,13 @@ function hashPw(pw) {
 function doLogin() {
   var input = document.getElementById('pw-input').value;
   if (!input) return;
-  hashPw(input).then(function (hash) {
-    var d = getData();
-    var isHash    = d.pw && d.pw.length === 64; /* SHA-256 = 64 hex chars */
-    var matched   = isHash ? (hash === d.pw) : (input === d.pw); /* 兼容旧明文密码 */
+
+  function attempt(hash) {
+    var d       = getData();
+    var isHash  = d.pw && d.pw.length === 64;
+    var matched = isHash ? (hash !== null && hash === d.pw) : (input === d.pw);
     if (matched) {
-      /* 旧明文密码：自动升级为哈希 */
-      if (!isHash) { d.pw = hash; saveData(d); }
+      if (!isHash && hash) { d.pw = hash; saveData(d); } /* 升级明文密码为哈希 */
       document.getElementById('gate-err').style.display = 'none';
       sessionStorage.setItem('fgh_admin', '1');
       showAdmin();
@@ -39,7 +39,14 @@ function doLogin() {
       document.getElementById('pw-input').value = '';
       document.getElementById('pw-input').focus();
     }
-  });
+  }
+
+  /* crypto.subtle 在 file:// 上部分浏览器不可用，降级为明文比对 */
+  if (window.crypto && window.crypto.subtle) {
+    hashPw(input).then(function (hash) { attempt(hash); }).catch(function () { attempt(null); });
+  } else {
+    attempt(null);
+  }
 }
 
 function logout() {
@@ -86,6 +93,7 @@ function fillForms() {
   document.getElementById('h-em').value   = d.hero.em;
   document.getElementById('h-post').value = d.hero.post;
   document.getElementById('h-sub').value  = d.hero.sub;
+  document.getElementById('h-bg').value   = d.hero.bg  || '';
 
   /* Cloudinary 设置 */
   var cl = d.cloudinary || { cloud: '', preset: '' };
@@ -196,6 +204,7 @@ function saveAll() {
   d.hero.em   = val('h-em');
   d.hero.post = val('h-post');
   d.hero.sub  = val('h-sub');
+  d.hero.bg   = val('h-bg').trim();
 
   d.stats.forEach(function (_, i) {
     d.stats[i].num = val('stat-num-' + i);
@@ -402,6 +411,53 @@ function showToast(text, type) {
   msg.className = 'show' + (type === 'success' ? ' ok' : '');
   clearTimeout(msg._t);
   msg._t = setTimeout(function () { msg.className = ''; }, 3500);
+}
+
+/* ── 直接上传封面图片到 Cloudinary ───────── */
+function handleHeroImageUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var d      = getData();
+  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+  if (!cloud || !preset) {
+    alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传图片。');
+    input.value = '';
+    return;
+  }
+  var prog = document.getElementById('h-img-prog');
+  if (prog) prog.textContent = '⏳ 上传中 0%';
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', preset);
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + cloud + '/image/upload');
+  xhr.upload.onprogress = function (e) {
+    if (e.lengthComputable && prog) {
+      prog.textContent = '⏳ 上传中 ' + Math.round(e.loaded / e.total * 100) + '%';
+    }
+  };
+  xhr.onload = function () {
+    try {
+      var res = JSON.parse(xhr.responseText);
+      if (res.secure_url) {
+        var bgInput = document.getElementById('h-bg');
+        if (bgInput) bgInput.value = res.secure_url;
+        if (prog) prog.textContent = '✓ 上传成功！';
+        setTimeout(function () { if (prog) prog.textContent = ''; }, 4000);
+      } else {
+        if (prog) prog.textContent = '✗ 上传失败：' + ((res.error && res.error.message) || '请检查 Cloud Name / Preset');
+      }
+    } catch (e) {
+      if (prog) prog.textContent = '✗ 上传失败，请重试';
+    }
+    input.value = '';
+  };
+  xhr.onerror = function () {
+    if (prog) prog.textContent = '✗ 网络错误，请检查连接';
+    input.value = '';
+  };
+  xhr.send(fd);
 }
 
 /* ── 直接上传视频到 Cloudinary ────────────── */

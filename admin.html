@@ -123,7 +123,21 @@
         <div class="field">
           <label>副标题（按 Enter 换行，网站上会显示为两行）</label>
           <textarea id="h-sub" rows="3"
-            placeholder="完整种植教学视频 · 天然草本养护药水&#10;专人指导，全程跟进，简单易学"></textarea>
+            placeholder="完整种植教学视频 · 专业配方养护药水&#10;专人指导，全程跟进，简单易学"></textarea>
+        </div>
+      </div>
+      <div class="form-row full" style="margin-top:4px">
+        <div class="field">
+          <label>封面背景图片（选填）</label>
+          <input type="url" id="h-bg" placeholder="粘贴图片网址，或点右侧按钮上传">
+          <div class="upload-row">
+            <label class="btn-upload-vid">
+              <input type="file" id="h-img-file" accept="image/*" onchange="handleHeroImageUpload(this)">
+              <i class="fas fa-image"></i> 从手机/电脑上传图片
+            </label>
+            <div class="upload-prog" id="h-img-prog"></div>
+          </div>
+          <span class="field-hint">上传后图片叠加在 Hero 区深色渐变上。留空则恢复默认渐变背景。</span>
         </div>
       </div>
     </div>

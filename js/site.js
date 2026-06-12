@@ -20,6 +20,22 @@ function renderPage(d) {
     el.href = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(waMsg);
   });
 
+  /* Hero 背景图片 */
+  var heroEl = document.querySelector('.hero');
+  if (heroEl) {
+    if (d.hero.bg) {
+      heroEl.style.backgroundImage =
+        'linear-gradient(135deg,rgba(26,26,46,.80) 0%,rgba(45,27,78,.72) 100%), url("'
+        + d.hero.bg.replace(/"/g, '%22') + '")';
+      heroEl.style.backgroundSize     = 'cover';
+      heroEl.style.backgroundPosition = 'center';
+    } else {
+      heroEl.style.backgroundImage    = '';
+      heroEl.style.backgroundSize     = '';
+      heroEl.style.backgroundPosition = '';
+    }
+  }
+
   /* Hero（支持三语） */
   setText('hero-tag-txt', gs('hero_tag',  d.hero.tag));
   setText('hero-pre',     gs('hero_pre',  d.hero.pre));
