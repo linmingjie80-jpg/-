@@ -24,9 +24,13 @@ function renderPage(d) {
   var heroEl = document.querySelector('.hero');
   if (heroEl) {
     if (d.hero.bg) {
+      /* sanitize: strip chars that break CSS url() — ), (, ", ', \n */
+      var safeBg = d.hero.bg.replace(/["'()\n\r\\]/g, function (c) {
+        return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+      });
       heroEl.style.backgroundImage =
         'linear-gradient(135deg,rgba(26,26,46,.80) 0%,rgba(45,27,78,.72) 100%), url("'
-        + d.hero.bg.replace(/"/g, '%22') + '")';
+        + safeBg + '")';
       heroEl.style.backgroundSize     = 'cover';
       heroEl.style.backgroundPosition = 'center';
     } else {
@@ -97,7 +101,7 @@ function renderPage(d) {
       var isUrl   = /^https?:\/\//i.test(p.img);
       var imgHtml = isUrl
         ? '<img src="' + esc(p.img) + '" alt="' + esc(gs(key + '_name', p.name)) + '">'
-        : '<span>' + p.img + '</span>';
+        : '<span>' + esc(p.img) + '</span>';
       var feats = (p.feats || []).map(function (f, j) {
         return '<li>' + esc(gs(key + '_feat_' + j, f)) + '</li>';
       }).join('');

@@ -34,7 +34,11 @@ function doLogin() {
       showAdmin();
     } else {
       var err = document.getElementById('gate-err');
-      err.textContent = '密码错误，请重试';
+      if (isHash && hash === null) {
+        err.textContent = '密码验证需要 HTTPS 环境，请通过 GitHub Pages 链接打开后台';
+      } else {
+        err.textContent = '密码错误，请重试';
+      }
       err.style.display = 'block';
       document.getElementById('pw-input').value = '';
       document.getElementById('pw-input').focus();
@@ -394,7 +398,8 @@ function translateAll() {
     if (tasks.length === 0) { onDone(); return; }
     var task = tasks.shift();
     translateText(task.text, task.lang, function (translated) {
-      d.i18n[task.lang][task.key] = translated;
+      /* 只有翻译结果与原文不同时才写入，避免 API 降级时用原文覆盖好的翻译 */
+      if (translated !== task.text) d.i18n[task.lang][task.key] = translated;
       done++;
       updateProgress();
       setTimeout(processNext, 120);
@@ -431,6 +436,10 @@ function changePw() {
     hashPw(nw).then(function (newHash) {
       d.pw = newHash;
       saveData(d);
+      /* 同步到 GitHub（密码变更必须同步，否则其他设备仍用旧密码） */
+      var ghElPw = document.getElementById('gh-token');
+      var tkPw = (ghElPw ? ghElPw.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
+      if (tkPw) pushToGitHub(d, tkPw, function () {}, function () {});
       okEl.style.display = 'block';
       ['pw-old', 'pw-new', 'pw-confirm'].forEach(function (id) {
         document.getElementById(id).value = '';
@@ -445,6 +454,9 @@ function resetData() {
   localStorage.removeItem('fgh_data');
   fillForms();
   showToast('↺ 已重置为默认值！请刷新网站查看效果', 'success');
+  var ghElR = document.getElementById('gh-token');
+  var tkR = (ghElR ? ghElR.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
+  if (tkR) pushToGitHub(getData(), tkR, function () {}, function () {});
 }
 
 /* ── Toast 提示 ─────────────────────────── */
@@ -504,9 +516,11 @@ function testGitHubSync() {
 function handleProductImageUpload(idx, input) {
   var file = input.files[0];
   if (!file) return;
+  var clCE = document.getElementById('cl-cloud');
+  var clPE = document.getElementById('cl-preset');
   var d      = getData();
-  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
-  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+  var cloud  = (clCE ? clCE.value.trim() : '') || ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = (clPE ? clPE.value.trim() : '') || ((d.cloudinary && d.cloudinary.preset) || '').trim();
   if (!cloud || !preset) {
     alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传图片。');
     input.value = ''; return;
@@ -547,9 +561,11 @@ function handleProductImageUpload(idx, input) {
 function handleHeroImageUpload(input) {
   var file = input.files[0];
   if (!file) return;
+  var clCE2 = document.getElementById('cl-cloud');
+  var clPE2 = document.getElementById('cl-preset');
   var d      = getData();
-  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
-  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+  var cloud  = (clCE2 ? clCE2.value.trim() : '') || ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = (clPE2 ? clPE2.value.trim() : '') || ((d.cloudinary && d.cloudinary.preset) || '').trim();
   if (!cloud || !preset) {
     alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传图片。');
     input.value = '';
@@ -595,9 +611,11 @@ function handleVideoUpload(idx, input) {
   var file = input.files[0];
   if (!file) return;
 
+  var clCE3 = document.getElementById('cl-cloud');
+  var clPE3 = document.getElementById('cl-preset');
   var d      = getData();
-  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
-  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+  var cloud  = (clCE3 ? clCE3.value.trim() : '') || ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = (clPE3 ? clPE3.value.trim() : '') || ((d.cloudinary && d.cloudinary.preset) || '').trim();
 
   if (!cloud || !preset) {
     alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传视频。\n\n免费注册：cloudinary.com → Dashboard 复制 Cloud Name → 创建 Unsigned Upload Preset');

@@ -370,8 +370,11 @@ function loadData(callback) {
 /* 将数据推送到 GitHub repo（需要 Personal Access Token） */
 function pushToGitHub(d, token, onSuccess, onError) {
   if (!token) { onError('未填写 GitHub Token'); return; }
+  /* 绝不把密码哈希推送到公开仓库 */
+  var pub = JSON.parse(JSON.stringify(d));
+  delete pub.pw;
   /* base64 编码（支持中文） */
-  var jsonStr  = JSON.stringify(d, null, 2);
+  var jsonStr  = JSON.stringify(pub, null, 2);
   var bytes    = new TextEncoder().encode(jsonStr);
   var binStr   = Array.from(bytes, function (b) { return String.fromCharCode(b); }).join('');
   var content  = btoa(binStr);
