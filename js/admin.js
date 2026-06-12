@@ -258,26 +258,24 @@ function saveAll() {
   if (clPresetEl2) d.cloudinary.preset = clPresetEl2.value.trim();
 
   /* GitHub Token — 存在本设备，不写入数据文件 */
-  var ghEl2 = document.getElementById('gh-token');
-  var ghToken = ghEl2 ? ghEl2.value.trim() : '';
+  var ghEl2   = document.getElementById('gh-token');
+  var ghToken = (ghEl2 ? ghEl2.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
   if (ghToken) localStorage.setItem('fgh_gh_token', ghToken);
   else         localStorage.removeItem('fgh_gh_token');
 
   saveData(d);
 
-  /* 同步到 GitHub（如已配置 Token） */
-  var savedToken = localStorage.getItem('fgh_gh_token');
-  if (savedToken) {
+  if (ghToken) {
     showToast('⏳ 正在同步到 GitHub…', '');
-    pushToGitHub(d, savedToken,
+    pushToGitHub(d, ghToken,
       function ()    { showToast('✓ 已保存并同步！所有设备及访客即时看到更新', 'success'); },
       function (err) {
         showToast('✓ 本地已保存', 'success');
-        alert('⚠ GitHub 同步失败：\n\n' + err + '\n\n内容已保存到本地。\n请到「设置」点「测试连接」排查原因。');
+        alert('⚠ GitHub 同步失败：\n\n' + err + '\n\n请到「设置」点「测试连接」确认原因。');
       }
     );
   } else {
-    showToast('✓ 已保存！填写 GitHub Token 可多设备同步', 'success');
+    showToast('✓ 已保存！在「设置」填写 GitHub Token 可多设备同步', 'success');
   }
 }
 
@@ -374,7 +372,8 @@ function translateAll() {
     saveData(d);
     if (tBtn) { tBtn.disabled = false; tBtn.querySelector('span').textContent = '自动翻译 EN/MY'; }
     if (sBtn) sBtn.disabled = false;
-    var tk = localStorage.getItem('fgh_gh_token');
+    var ghElT = document.getElementById('gh-token');
+    var tk = (ghElT ? ghElT.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
     if (tk) {
       showToast('⏳ 翻译完成，正在同步…', '');
       pushToGitHub(d, tk,
@@ -458,42 +457,24 @@ function showToast(text, type) {
   msg._t = setTimeout(function () { msg.className = ''; }, 3500);
 }
 
-/* ── 测试 GitHub 连接 ────────────────────── */
+/* ── 测试 GitHub 连接（含写入测试）──────── */
 function testGitHubSync() {
   var ghEl  = document.getElementById('gh-token');
   var token = (ghEl ? ghEl.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
   if (!token) { alert('请先填写 GitHub Token，再点测试。'); return; }
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://api.github.com/repos/linmingjie80-jpg/-', true);
-  xhr.setRequestHeader('Authorization', 'token ' + token);
-  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.timeout = 10000;
-  xhr.onload = function () {
-    var msg;
-    if (xhr.status === 200) {
-      var repo = JSON.parse(xhr.responseText);
-      msg = '✅ 连接成功！\n仓库：' + repo.full_name + '\n\n可以正常同步。';
-    } else if (xhr.status === 401) {
-      msg = '❌ Token 无效（401）\n\n请重新生成 Token，确保完整复制（无空格）。';
-    } else if (xhr.status === 403) {
-      var body403 = '';
-      try { body403 = JSON.parse(xhr.responseText).message || ''; } catch(e) {}
-      if (body403.indexOf('accessible') !== -1) {
-        msg = '❌ 权限不足（403）\n\n原因：Token 的 scope 不够。\n\n修复方法：\n① 到 github.com → Settings → Developer settings\n   → Personal access tokens → Tokens (classic)\n② 重新生成 Token\n③ 勾选 repo 整个大栏（不是里面的 public_repo 子项）\n④ 复制新 Token 粘贴到此处保存';
-      } else {
-        msg = '❌ 权限不足（403）：' + body403;
-      }
-    } else if (xhr.status === 404) {
-      msg = '❌ 找不到仓库（404）\n\nToken 可能没权限，或仓库名有误。';
-    } else {
-      msg = '❌ 错误 ' + xhr.status + '\n\n' + xhr.responseText.substring(0, 300);
+  showToast('⏳ 测试写入中…', '');
+  /* 直接测试完整写入流程（推送当前数据） */
+  pushToGitHub(getData(), token,
+    function () {
+      showToast('', '');
+      alert('✅ 同步测试成功！\n写入 GitHub 完全正常，之后保存都会自动同步。\n\n如果之前同步失败，请重新点「保存所有修改」。');
+    },
+    function (err) {
+      showToast('', '');
+      alert('❌ 写入测试失败：\n\n' + err + '\n\n请截图发给开发者。');
     }
-    alert(msg);
-  };
-  xhr.onerror   = function () { alert('❌ 网络错误，无法连接 GitHub API。\n请检查网络连接。'); };
-  xhr.ontimeout = function () { alert('❌ 连接超时，请检查网络是否正常。'); };
-  xhr.send();
+  );
 }
 
 /* ── 直接上传产品图片到 Cloudinary ──────── */
