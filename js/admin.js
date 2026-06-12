@@ -473,13 +473,19 @@ function testGitHubSync() {
     var msg;
     if (xhr.status === 200) {
       var repo = JSON.parse(xhr.responseText);
-      msg = '✅ 连接成功！\n仓库：' + repo.full_name + '\n私有：' + (repo.private ? '是（请改为公开）' : '否') + '\n\n可以正常同步。';
+      msg = '✅ 连接成功！\n仓库：' + repo.full_name + '\n\n可以正常同步。';
     } else if (xhr.status === 401) {
-      msg = '❌ Token 无效（401 Unauthorized）\n\n请重新在 github.com 生成一个新 Token，\n并确保复制完整（不要有空格）。';
+      msg = '❌ Token 无效（401）\n\n请重新生成 Token，确保完整复制（无空格）。';
     } else if (xhr.status === 403) {
-      msg = '❌ 权限不足（403 Forbidden）\n\n请确认生成 Token 时勾选了 public_repo。';
+      var body403 = '';
+      try { body403 = JSON.parse(xhr.responseText).message || ''; } catch(e) {}
+      if (body403.indexOf('accessible') !== -1) {
+        msg = '❌ 权限不足（403）\n\n原因：Token 的 scope 不够。\n\n修复方法：\n① 到 github.com → Settings → Developer settings\n   → Personal access tokens → Tokens (classic)\n② 重新生成 Token\n③ 勾选 repo 整个大栏（不是里面的 public_repo 子项）\n④ 复制新 Token 粘贴到此处保存';
+      } else {
+        msg = '❌ 权限不足（403）：' + body403;
+      }
     } else if (xhr.status === 404) {
-      msg = '❌ 找不到仓库（404）\n\n可能仓库是私有的，或者 Token 没有权限访问。\n请在 GitHub → Settings → General → 改为 Public。';
+      msg = '❌ 找不到仓库（404）\n\nToken 可能没权限，或仓库名有误。';
     } else {
       msg = '❌ 错误 ' + xhr.status + '\n\n' + xhr.responseText.substring(0, 300);
     }
