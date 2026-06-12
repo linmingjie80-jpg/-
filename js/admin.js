@@ -77,7 +77,8 @@ function showAdmin() {
   document.getElementById('gate').style.display  = 'none';
   document.getElementById('panel').style.display = 'block';
   document.getElementById('save-bar').style.display = 'flex';
-  fillForms();
+  /* 先从 GitHub 拉取最新数据，再填充表单 */
+  loadData(function () { fillForms(); });
 }
 
 /* ── 填充表单 ────────────────────────────── */
@@ -101,6 +102,10 @@ function fillForms() {
   var clPresetEl = document.getElementById('cl-preset');
   if (clCloudEl)  clCloudEl.value  = cl.cloud  || '';
   if (clPresetEl) clPresetEl.value = cl.preset || '';
+
+  /* GitHub Token（存在本设备 localStorage，不写入数据文件） */
+  var ghEl = document.getElementById('gh-token');
+  if (ghEl) ghEl.value = localStorage.getItem('fgh_gh_token') || '';
 
   document.getElementById('stats-fields').innerHTML = d.stats.map(function (s, i) {
     return (
@@ -244,8 +249,25 @@ function saveAll() {
   if (clCloudEl2)  d.cloudinary.cloud  = clCloudEl2.value.trim();
   if (clPresetEl2) d.cloudinary.preset = clPresetEl2.value.trim();
 
+  /* GitHub Token — 存在本设备，不写入数据文件 */
+  var ghEl2 = document.getElementById('gh-token');
+  var ghToken = ghEl2 ? ghEl2.value.trim() : '';
+  if (ghToken) localStorage.setItem('fgh_gh_token', ghToken);
+  else         localStorage.removeItem('fgh_gh_token');
+
   saveData(d);
-  showToast('✓ 已保存！点击「自动翻译」可更新英/马文', 'success');
+
+  /* 同步到 GitHub（如已配置 Token） */
+  var savedToken = localStorage.getItem('fgh_gh_token');
+  if (savedToken) {
+    showToast('⏳ 正在同步到 GitHub…', '');
+    pushToGitHub(d, savedToken,
+      function ()    { showToast('✓ 已保存并同步！所有设备及访客即时看到更新', 'success'); },
+      function (err) { showToast('✓ 本地已保存，同步失败：' + err, ''); }
+    );
+  } else {
+    showToast('✓ 已保存！填写 GitHub Token 可多设备同步', 'success');
+  }
 }
 
 /* ── 自动翻译（调用 MyMemory 免费 API）───── */
@@ -341,7 +363,16 @@ function translateAll() {
     saveData(d);
     if (tBtn) { tBtn.disabled = false; tBtn.querySelector('span').textContent = '自动翻译 EN/MY'; }
     if (sBtn) sBtn.disabled = false;
-    showToast('✓ 翻译完成！' + total + ' 条文案已更新 EN/MY', 'success');
+    var tk = localStorage.getItem('fgh_gh_token');
+    if (tk) {
+      showToast('⏳ 翻译完成，正在同步…', '');
+      pushToGitHub(d, tk,
+        function ()    { showToast('✓ 翻译完成并已同步！' + total + ' 条文案已更新', 'success'); },
+        function (err) { showToast('✓ 翻译完成，同步失败：' + err, ''); }
+      );
+    } else {
+      showToast('✓ 翻译完成！' + total + ' 条文案已更新 EN/MY', 'success');
+    }
   }
 
   updateProgress();

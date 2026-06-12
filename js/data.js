@@ -338,3 +338,83 @@ function getStr(d, key, zhText) {
   var val = d.i18n && d.i18n[lang] && d.i18n[lang][key];
   return (val !== undefined && val !== '') ? val : zhText;
 }
+
+/* ══ GitHub 多设备同步 ════════════════════════
+   公开站点读取 ./data/site-data.json
+   管理员保存时通过 GitHub Contents API 写回
+═══════════════════════════════════════════ */
+var _GH = { owner: 'linmingjie80-jpg', repo: '-', file: 'data/site-data.json', branch: 'main' };
+
+/* 从 GitHub Pages 拉取最新数据（异步；失败降级到 localStorage） */
+function loadData(callback) {
+  var url = './data/site-data.json?_=' + Date.now();
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.timeout = 8000;
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      try {
+        var remote = JSON.parse(xhr.responseText);
+        var d = deepMerge(JSON.parse(JSON.stringify(DEFAULT)), remote);
+        localStorage.setItem('fgh_data', JSON.stringify(d));
+        callback(d);
+        return;
+      } catch (e) { /* JSON 解析失败，降级 */ }
+    }
+    callback(getData());
+  };
+  xhr.onerror = xhr.ontimeout = function () { callback(getData()); };
+  xhr.send();
+}
+
+/* 将数据推送到 GitHub repo（需要 Personal Access Token） */
+function pushToGitHub(d, token, onSuccess, onError) {
+  if (!token) { onError('未填写 GitHub Token'); return; }
+  /* base64 编码（支持中文） */
+  var jsonStr  = JSON.stringify(d, null, 2);
+  var bytes    = new TextEncoder().encode(jsonStr);
+  var binStr   = Array.from(bytes, function (b) { return String.fromCharCode(b); }).join('');
+  var content  = btoa(binStr);
+  var apiBase  = 'https://api.github.com/repos/' + _GH.owner + '/' + _GH.repo
+               + '/contents/' + _GH.file;
+  var headers  = { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' };
+
+  /* Step 1 — 取当前文件 SHA（更新必须带 SHA；新建则不需要） */
+  var xhr1 = new XMLHttpRequest();
+  xhr1.open('GET', apiBase + '?ref=' + _GH.branch, true);
+  xhr1.setRequestHeader('Authorization', headers.Authorization);
+  xhr1.setRequestHeader('Accept',        headers.Accept);
+  xhr1.timeout = 12000;
+  xhr1.onload = function () {
+    var sha = '';
+    if (xhr1.status === 200) {
+      try { sha = JSON.parse(xhr1.responseText).sha || ''; } catch (e) {}
+    } else if (xhr1.status !== 404) {
+      onError('读取 GitHub 失败（' + xhr1.status + '）');
+      return;
+    }
+
+    /* Step 2 — PUT 写入文件 */
+    var body = { message: 'Update site data', content: content, branch: _GH.branch };
+    if (sha) body.sha = sha;
+
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('PUT', apiBase, true);
+    xhr2.setRequestHeader('Authorization', headers.Authorization);
+    xhr2.setRequestHeader('Accept',        headers.Accept);
+    xhr2.setRequestHeader('Content-Type',  'application/json');
+    xhr2.timeout = 18000;
+    xhr2.onload = function () {
+      if (xhr2.status === 200 || xhr2.status === 201) {
+        onSuccess();
+      } else {
+        try { onError(JSON.parse(xhr2.responseText).message || '推送失败 ' + xhr2.status); }
+        catch (e) { onError('推送失败 ' + xhr2.status); }
+      }
+    };
+    xhr2.onerror = xhr2.ontimeout = function () { onError('网络超时，请检查连接'); };
+    xhr2.send(JSON.stringify(body));
+  };
+  xhr1.onerror = xhr1.ontimeout = function () { onError('GitHub 连接失败'); };
+  xhr1.send();
+}

@@ -189,6 +189,33 @@
   <!-- ── Tab：设置 ── -->
   <div class="tab-panel" id="tab-settings" role="tabpanel">
 
+    <!-- GitHub 多设备同步 -->
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🔄</span> 多设备同步（GitHub）</div>
+      <div class="tip">
+        <i class="fas fa-circle-info"></i>
+        填写后，每次点「保存」会自动推送到 GitHub，<strong>所有设备及网站访客即时看到最新内容</strong>（含照片、视频、电话号码等）。<br><br>
+        <strong>设置步骤（5 分钟）：</strong><br>
+        ① 登录 <strong>github.com</strong> → 右上角头像 → Settings<br>
+        ② 左侧菜单最底部 <strong>Developer settings</strong> → Personal access tokens → <strong>Tokens (classic)</strong><br>
+        ③ Generate new token → Note 随便填 → 勾选 <strong><code>public_repo</code></strong> → 拉到最底点 Generate<br>
+        ④ 复制生成的 token（<code>ghp_</code> 开头）→ 粘贴到下方 → 点「保存所有修改」<br>
+        <small>⚠ Token 只存在<strong>当前设备浏览器</strong>，不会出现在网站代码里</small>
+      </div>
+      <div class="form-row full">
+        <div class="field">
+          <label>GitHub Personal Access Token</label>
+          <div class="pw-wrap" style="margin:0">
+            <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+            <button class="pw-eye" onclick="togglePw('gh-token', this)" tabindex="-1" aria-label="显示/隐藏 Token">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <span class="field-hint">每台需要管理的设备单独填写一次。访客浏览网站不需要 Token。</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Cloudinary 视频直传设置 -->
     <div class="card">
       <div class="card-title"><span class="ct-icon">☁</span> 视频直传设置（Cloudinary）</div>

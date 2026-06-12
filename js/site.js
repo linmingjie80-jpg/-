@@ -168,8 +168,11 @@ function switchLang(lang) {
 
 /* ── 页面初始化 ─────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
-  renderPage(getData());
-  applyLang();
+  /* 先从 GitHub Pages 拉取最新数据，再渲染（降级到 localStorage） */
+  loadData(function (d) {
+    renderPage(d);
+    applyLang();
+  });
 
   /* 汉堡菜单 */
   var toggle = document.getElementById('navToggle');
