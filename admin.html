@@ -171,9 +171,8 @@
     <div class="tip">
       <i class="fas fa-image"></i>
       <strong>产品图片：</strong>
-      可输入 emoji（例：🌸）或图片网址。
-      如需上传照片，先将图片上传至
-      <strong>imgbb.com</strong>（免费），复制图片链接粘贴即可。
+      可直接点「上传图片」从手机相册或电脑选取（需先在「设置」配置 Cloudinary）。
+      也可输入 emoji（例：🌸）或粘贴图片网址。
     </div>
     <div id="products-fields"><!-- 由 admin.js 填充 --></div>
   </div>
@@ -215,6 +214,11 @@
             <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" style="font-size:.82rem;letter-spacing:.5px">
             <button class="pw-eye" onclick="togglePw('gh-token', this)" tabindex="-1" aria-label="显示/隐藏 Token">
               <i class="fas fa-eye-slash"></i>
+            </button>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn-change-pw" onclick="testGitHubSync()" style="margin-top:0">
+              <i class="fas fa-plug"></i> 测试连接
             </button>
           </div>
           <span class="field-hint">每台需要管理的设备单独填写一次。访客浏览网站不需要 Token。</span>

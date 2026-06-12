@@ -155,8 +155,16 @@ function fillForms() {
       '<div class="item-card">'
       + '<div class="item-card-head"><span class="item-num">' + (i + 1) + '</span> 产品 ' + (i + 1) + '：' + esc(p.name) + '</div>'
       + '<div class="form-row three">'
-      +   '<div class="field"><label>图片（emoji 或图片网址）</label>'
-      +     '<input type="text" id="p-img-' + i + '" value="' + esc(p.img) + '" placeholder="🌸 或 https://..."></div>'
+      +   '<div class="field"><label>产品图片</label>'
+      +     '<input type="text" id="p-img-' + i + '" value="' + esc(p.img) + '" placeholder="🌸 或图片网址">'
+      +     '<div class="upload-row">'
+      +       '<label class="btn-upload-vid">'
+      +         '<input type="file" id="p-img-file-' + i + '" accept="image/*" onchange="handleProductImageUpload(' + i + ', this)">'
+      +         '<i class="fas fa-image"></i> 上传图片'
+      +       '</label>'
+      +       '<div class="upload-prog" id="p-img-prog-' + i + '"></div>'
+      +     '</div>'
+      +   '</div>'
       +   '<div class="field"><label>标签文字</label>'
       +     '<input type="text" id="p-badge-' + i + '" value="' + esc(p.badge) + '"></div>'
       +   '<div class="field"><label>标签颜色</label>'
@@ -263,7 +271,10 @@ function saveAll() {
     showToast('⏳ 正在同步到 GitHub…', '');
     pushToGitHub(d, savedToken,
       function ()    { showToast('✓ 已保存并同步！所有设备及访客即时看到更新', 'success'); },
-      function (err) { showToast('✓ 本地已保存，同步失败：' + err, ''); }
+      function (err) {
+        showToast('✓ 本地已保存', 'success');
+        alert('⚠ GitHub 同步失败：\n\n' + err + '\n\n内容已保存到本地。\n请到「设置」点「测试连接」排查原因。');
+      }
     );
   } else {
     showToast('✓ 已保存！填写 GitHub Token 可多设备同步', 'success');
@@ -368,7 +379,10 @@ function translateAll() {
       showToast('⏳ 翻译完成，正在同步…', '');
       pushToGitHub(d, tk,
         function ()    { showToast('✓ 翻译完成并已同步！' + total + ' 条文案已更新', 'success'); },
-        function (err) { showToast('✓ 翻译完成，同步失败：' + err, ''); }
+        function (err) {
+          showToast('✓ 翻译完成', 'success');
+          alert('⚠ GitHub 同步失败：\n\n' + err + '\n\n请到「设置」点「测试连接」排查原因。');
+        }
       );
     } else {
       showToast('✓ 翻译完成！' + total + ' 条文案已更新 EN/MY', 'success');
@@ -442,6 +456,81 @@ function showToast(text, type) {
   msg.className = 'show' + (type === 'success' ? ' ok' : '');
   clearTimeout(msg._t);
   msg._t = setTimeout(function () { msg.className = ''; }, 3500);
+}
+
+/* ── 测试 GitHub 连接 ────────────────────── */
+function testGitHubSync() {
+  var ghEl  = document.getElementById('gh-token');
+  var token = (ghEl ? ghEl.value.trim() : '') || localStorage.getItem('fgh_gh_token') || '';
+  if (!token) { alert('请先填写 GitHub Token，再点测试。'); return; }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://api.github.com/repos/linmingjie80-jpg/-', true);
+  xhr.setRequestHeader('Authorization', 'token ' + token);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.timeout = 10000;
+  xhr.onload = function () {
+    var msg;
+    if (xhr.status === 200) {
+      var repo = JSON.parse(xhr.responseText);
+      msg = '✅ 连接成功！\n仓库：' + repo.full_name + '\n私有：' + (repo.private ? '是（请改为公开）' : '否') + '\n\n可以正常同步。';
+    } else if (xhr.status === 401) {
+      msg = '❌ Token 无效（401 Unauthorized）\n\n请重新在 github.com 生成一个新 Token，\n并确保复制完整（不要有空格）。';
+    } else if (xhr.status === 403) {
+      msg = '❌ 权限不足（403 Forbidden）\n\n请确认生成 Token 时勾选了 public_repo。';
+    } else if (xhr.status === 404) {
+      msg = '❌ 找不到仓库（404）\n\n可能仓库是私有的，或者 Token 没有权限访问。\n请在 GitHub → Settings → General → 改为 Public。';
+    } else {
+      msg = '❌ 错误 ' + xhr.status + '\n\n' + xhr.responseText.substring(0, 300);
+    }
+    alert(msg);
+  };
+  xhr.onerror   = function () { alert('❌ 网络错误，无法连接 GitHub API。\n请检查网络连接。'); };
+  xhr.ontimeout = function () { alert('❌ 连接超时，请检查网络是否正常。'); };
+  xhr.send();
+}
+
+/* ── 直接上传产品图片到 Cloudinary ──────── */
+function handleProductImageUpload(idx, input) {
+  var file = input.files[0];
+  if (!file) return;
+  var d      = getData();
+  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+  if (!cloud || !preset) {
+    alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传图片。');
+    input.value = ''; return;
+  }
+  var prog = document.getElementById('p-img-prog-' + idx);
+  if (prog) prog.textContent = '⏳ 上传中 0%';
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', preset);
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + cloud + '/image/upload');
+  xhr.upload.onprogress = function (e) {
+    if (e.lengthComputable && prog)
+      prog.textContent = '⏳ 上传中 ' + Math.round(e.loaded / e.total * 100) + '%';
+  };
+  xhr.onload = function () {
+    try {
+      var res = JSON.parse(xhr.responseText);
+      if (res.secure_url) {
+        var imgInput = document.getElementById('p-img-' + idx);
+        if (imgInput) imgInput.value = res.secure_url;
+        if (prog) prog.textContent = '✓ 上传成功！';
+        setTimeout(function () { if (prog) prog.textContent = ''; }, 4000);
+      } else {
+        if (prog) prog.textContent = '✗ 上传失败：' + ((res.error && res.error.message) || '请检查 Cloudinary 设置');
+      }
+    } catch (e) { if (prog) prog.textContent = '✗ 上传失败，请重试'; }
+    input.value = '';
+  };
+  xhr.onerror = function () {
+    if (prog) prog.textContent = '✗ 网络错误';
+    input.value = '';
+  };
+  xhr.send(fd);
 }
 
 /* ── 直接上传封面图片到 Cloudinary ───────── */
