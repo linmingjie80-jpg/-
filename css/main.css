@@ -186,7 +186,8 @@ nav {
 }
 .vcard:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,.13); }
 .vthumb { position: relative; padding-top: 56.25%; overflow: hidden; background: var(--dark); }
-.vthumb iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.vthumb iframe,
+.vthumb video { position: absolute; inset: 0; width: 100%; height: 100%; border: none; object-fit: cover; }
 .vplaceholder {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;

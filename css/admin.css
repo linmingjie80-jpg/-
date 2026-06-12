@@ -218,6 +218,27 @@ body {
 .btn-save:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .btn-save i { font-size: 1.1rem; }
 
+/* ── 视频上传按钮 ────────────────────────── */
+.upload-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 10px; flex-wrap: wrap;
+}
+.btn-upload-vid {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--dark); color: #fff;
+  padding: 10px 18px; border-radius: 20px;
+  font-size: .85rem; font-weight: 700; cursor: pointer;
+  transition: opacity .2s; line-height: 1;
+  white-space: nowrap;
+}
+.btn-upload-vid:hover { opacity: .82; }
+.btn-upload-vid input[type="file"] { display: none; }
+.btn-upload-vid i { font-size: .95rem; }
+.upload-prog {
+  font-size: .85rem; font-weight: 700;
+  color: var(--gray); min-width: 0;
+}
+
 /* 密码区 */
 .pw-section { max-width: 420px; }
 .btn-change-pw {

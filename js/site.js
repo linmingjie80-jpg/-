@@ -47,10 +47,16 @@ function renderPage(d) {
     vg.innerHTML = d.videos.map(function (v, i) {
       var key   = 'video_' + i;
       var embed = toEmbed(v.url);
+      var isDirect = !embed && v.url && (
+        /\.(mp4|webm|mov|ogg|avi)(\?|#|$)/i.test(v.url) ||
+        /cloudinary\.com/i.test(v.url)
+      );
       var thumb = embed
         ? '<iframe src="' + esc(embed) + '" allowfullscreen loading="lazy"></iframe>'
-        : '<div class="vplaceholder"><i class="fas fa-play-circle"></i>'
-          + '<small>' + esc(t('coming_soon')) + '</small></div>';
+        : isDirect
+          ? '<video src="' + esc(v.url) + '" controls playsinline preload="none"></video>'
+          : '<div class="vplaceholder"><i class="fas fa-play-circle"></i>'
+            + '<small>' + esc(t('coming_soon')) + '</small></div>';
       return (
         '<div class="vcard">'
         + '<div class="vthumb">' + thumb + '</div>'

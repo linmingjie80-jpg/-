@@ -83,6 +83,13 @@ function fillForms() {
   document.getElementById('h-post').value = d.hero.post;
   document.getElementById('h-sub').value  = d.hero.sub;
 
+  /* Cloudinary 设置 */
+  var cl = d.cloudinary || { cloud: '', preset: '' };
+  var clCloudEl  = document.getElementById('cl-cloud');
+  var clPresetEl = document.getElementById('cl-preset');
+  if (clCloudEl)  clCloudEl.value  = cl.cloud  || '';
+  if (clPresetEl) clPresetEl.value = cl.preset || '';
+
   document.getElementById('stats-fields').innerHTML = d.stats.map(function (s, i) {
     return (
       '<div class="form-row" style="margin-bottom:14px">'
@@ -108,8 +115,17 @@ function fillForms() {
       +   '<textarea id="v-desc-' + i + '" rows="2">' + esc(v.desc) + '</textarea></div></div>'
       + '<div class="form-row">'
       +   '<div class="field"><label>难度 / 适合对象</label><input type="text" id="v-lvl-' + i + '" value="' + esc(v.lvl) + '"></div>'
-      +   '<div class="field"><label>YouTube 链接（粘贴后自动处理）</label>'
-      +     '<input type="url" id="v-url-' + i + '" value="' + esc(v.url) + '" placeholder="https://www.youtube.com/watch?v=..."></div>'
+      +   '<div class="field">'
+      +     '<label>视频链接 / 直传上传</label>'
+      +     '<input type="url" id="v-url-' + i + '" value="' + esc(v.url) + '" placeholder="https://www.youtube.com/watch?v=...">'
+      +     '<div class="upload-row">'
+      +       '<label class="btn-upload-vid">'
+      +         '<input type="file" id="v-file-' + i + '" accept="video/*" onchange="handleVideoUpload(' + i + ', this)">'
+      +         '<i class="fas fa-cloud-upload-alt"></i> 从手机/电脑上传视频'
+      +       '</label>'
+      +       '<div class="upload-prog" id="v-prog-' + i + '"></div>'
+      +     '</div>'
+      +   '</div>'
       + '</div>'
       + '</div>'
     );
@@ -207,6 +223,13 @@ function saveAll() {
     d.steps[i].title = val('s-title-' + i);
     d.steps[i].desc  = val('s-desc-' + i);
   });
+
+  /* Cloudinary 设置 */
+  if (!d.cloudinary) d.cloudinary = { cloud: '', preset: '' };
+  var clCloudEl2  = document.getElementById('cl-cloud');
+  var clPresetEl2 = document.getElementById('cl-preset');
+  if (clCloudEl2)  d.cloudinary.cloud  = clCloudEl2.value.trim();
+  if (clPresetEl2) d.cloudinary.preset = clPresetEl2.value.trim();
 
   saveData(d);
   showToast('✓ 已保存！点击「自动翻译」可更新英/马文', 'success');
@@ -375,6 +398,62 @@ function showToast(text, type) {
   msg.className = 'show' + (type === 'success' ? ' ok' : '');
   clearTimeout(msg._t);
   msg._t = setTimeout(function () { msg.className = ''; }, 3500);
+}
+
+/* ── 直接上传视频到 Cloudinary ────────────── */
+function handleVideoUpload(idx, input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  var d      = getData();
+  var cloud  = ((d.cloudinary && d.cloudinary.cloud)  || '').trim();
+  var preset = ((d.cloudinary && d.cloudinary.preset) || '').trim();
+
+  if (!cloud || !preset) {
+    alert('请先在「设置」标签填写 Cloudinary 的 Cloud Name 和 Upload Preset，才能直接上传视频。\n\n免费注册：cloudinary.com → Dashboard 复制 Cloud Name → 创建 Unsigned Upload Preset');
+    input.value = '';
+    return;
+  }
+
+  var prog = document.getElementById('v-prog-' + idx);
+  if (prog) prog.textContent = '⏳ 上传中 0%';
+
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', preset);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + cloud + '/video/upload');
+
+  xhr.upload.onprogress = function (e) {
+    if (e.lengthComputable && prog) {
+      prog.textContent = '⏳ 上传中 ' + Math.round(e.loaded / e.total * 100) + '%';
+    }
+  };
+
+  xhr.onload = function () {
+    try {
+      var res = JSON.parse(xhr.responseText);
+      if (res.secure_url) {
+        var urlInput = document.getElementById('v-url-' + idx);
+        if (urlInput) urlInput.value = res.secure_url;
+        if (prog) prog.textContent = '✓ 上传成功！';
+        setTimeout(function () { if (prog) prog.textContent = ''; }, 4000);
+      } else {
+        if (prog) prog.textContent = '✗ 上传失败：' + ((res.error && res.error.message) || '请检查 Cloud Name / Preset');
+      }
+    } catch (e) {
+      if (prog) prog.textContent = '✗ 上传失败，请重试';
+    }
+    input.value = '';
+  };
+
+  xhr.onerror = function () {
+    if (prog) prog.textContent = '✗ 网络错误，请检查连接';
+    input.value = '';
+  };
+
+  xhr.send(fd);
 }
 
 /* ── 页面初始化 ─────────────────────────── */

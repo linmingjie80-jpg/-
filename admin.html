@@ -141,10 +141,13 @@
   <div class="tab-panel" id="tab-videos" role="tabpanel">
     <div class="tip">
       <i class="fab fa-youtube" style="color:#FF0000"></i>
-      <strong>如何添加 YouTube 视频：</strong>
-      打开 YouTube 视频页面 → 复制网址栏链接
-      （例：https://www.youtube.com/watch?v=xxxxx）→ 粘贴到「YouTube 链接」栏。
-      系统会自动转换格式，无需手动修改。
+      <strong>电脑 — YouTube 链接：</strong>
+      打开 YouTube 视频页面 → 复制网址栏链接 → 粘贴到下方「视频链接」栏。系统自动转换格式。
+    </div>
+    <div class="tip" style="margin-top:-10px">
+      <i class="fas fa-mobile-screen-button" style="color:#25D366"></i>
+      <strong>手机直接上传：</strong>
+      先在「设置」填好 Cloudinary 信息 → 点击「从手机/电脑上传视频」→ 选择相册或拍摄 → 自动上传并填入链接。
     </div>
     <div id="videos-fields"><!-- 由 admin.js 填充 --></div>
   </div>
@@ -171,6 +174,30 @@
 
   <!-- ── Tab：设置 ── -->
   <div class="tab-panel" id="tab-settings" role="tabpanel">
+
+    <!-- Cloudinary 视频直传设置 -->
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">☁</span> 视频直传设置（Cloudinary）</div>
+      <div class="tip">
+        <i class="fas fa-circle-info"></i>
+        填写后即可在「教学视频」标签直接从<strong>手机相册/相机</strong>或<strong>电脑</strong>上传视频，无需先传 YouTube。<br>
+        <strong>免费设置步骤：</strong>
+        ① 前往 <strong>cloudinary.com</strong> 注册免费账号（25GB 免费容量）→
+        ② 登入后在 Dashboard 复制 <strong>Cloud Name</strong> →
+        ③ 左菜单 Settings → Upload → 点「Add upload preset」→ Signing mode 选 <strong>Unsigned</strong> → 保存复制 Preset Name →
+        ④ 填入下方 → 点「保存所有修改」。
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Cloud Name</label>
+          <input type="text" id="cl-cloud" placeholder="例：my-cloud-abc123">
+        </div>
+        <div class="field">
+          <label>Upload Preset（必须选 Unsigned）</label>
+          <input type="text" id="cl-preset" placeholder="例：flowers_unsigned">
+        </div>
+      </div>
+    </div>
 
     <!-- 修改密码 -->
     <div class="card pw-section">
