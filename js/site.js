@@ -71,10 +71,20 @@ function renderPage(d) {
         /\.(mp4|webm|mov|ogg|avi)(\?|#|$)/i.test(v.url) ||
         /cloudinary\.com/i.test(v.url)
       );
+      /* iPhone 拍的 .mov(及其它格式)交给 Cloudinary 自动转成 mp4，
+         否则安卓 / Chrome / 电脑都播不了；同时生成首帧封面图 */
+      var vsrc = v.url, vposter = '';
+      if (isDirect && /res\.cloudinary\.com\/.+\/video\/upload\//i.test(vsrc)) {
+        vsrc    = vsrc.replace(/\.(mov|avi|mkv|webm|ogg|m4v|3gp|wmv|flv)(\?.*)?$/i, '.mp4$2');
+        if (!/\.mp4(\?|$)/i.test(vsrc)) vsrc += '.mp4';
+        vposter = vsrc.replace(/\.mp4(\?.*)?$/i, '.jpg$1');
+      }
       var thumb = embed
         ? '<iframe src="' + esc(embed) + '" allowfullscreen loading="lazy"></iframe>'
         : isDirect
-          ? '<video src="' + esc(v.url) + '" controls playsinline preload="none"></video>'
+          ? '<video src="' + esc(vsrc) + '"'
+            + (vposter ? ' poster="' + esc(vposter) + '"' : '')
+            + ' controls playsinline preload="metadata"></video>'
           : '<div class="vplaceholder"><i class="fas fa-play-circle"></i>'
             + '<small>' + esc(t('coming_soon')) + '</small></div>';
       return (
