@@ -37,7 +37,7 @@
       "desc": "如何挑选合适花盆与培土配方，让富贵花一开始就赢在起跑线。",
       "dur": "约 15 分钟",
       "lvl": "新手必看",
-      "url": ""
+      "url": "https://res.cloudinary.com/dihle3cgw/video/upload/v1781944887/kkya9izbptcqbvw1wgjq.mov"
     },
     {
       "tag": "浇水施肥",
@@ -165,8 +165,8 @@
     }
   ],
   "cloudinary": {
-    "cloud": "",
-    "preset": ""
+    "cloud": "dihle3cgw",
+    "preset": "fuguihua"
   },
   "i18n": {
     "en": {
