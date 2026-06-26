@@ -123,10 +123,7 @@ function showAdmin() {
   document.getElementById('gate').style.display  = 'none';
   document.getElementById('panel').style.display = 'block';
   if (canSite()) {
-    document.getElementById('save-bar').style.display = 'flex';
-    loadData(function () { fillForms(); });       /* 拉最新数据填表（仅网站管理）*/
-  } else {
-    document.getElementById('save-bar').style.display = 'none';
+    loadData(function () { fillForms(); addTabSaveButtons(); });   /* 拉最新数据填表（仅网站管理）*/
   }
   applyAccess();   /* 按权限显示标签，并激活第一个可见标签 */
 }
@@ -521,12 +518,25 @@ function resetData() {
 
 /* ── Toast 提示 ─────────────────────────── */
 function showToast(text, type) {
-  var msg = document.getElementById('save-msg');
-  if (!msg) return;
-  msg.textContent = text;
-  msg.className = 'show' + (type === 'success' ? ' ok' : '');
-  clearTimeout(msg._t);
-  msg._t = setTimeout(function () { msg.className = ''; }, 3500);
+  var el = document.getElementById('admin-toast');
+  if (!el) { el = document.createElement('div'); el.id = 'admin-toast'; el.className = 'admin-toast'; document.body.appendChild(el); }
+  el.textContent = text;
+  el.className = 'admin-toast show' + (type === 'success' ? ' ok' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(function () { el.className = 'admin-toast'; }, 3500);
+}
+
+/* ── 在每个网站内容标签底部放一个「保存所有修改」按钮 ── */
+function addTabSaveButtons() {
+  ['contact', 'hero', 'stats', 'videos', 'products', 'steps', 'settings'].forEach(function (name) {
+    var panel = document.getElementById('tab-' + name);
+    if (panel && !panel.querySelector('.tab-save')) {
+      var div = document.createElement('div');
+      div.className = 'tab-save';
+      div.innerHTML = '<button class="btn-save" onclick="saveAll()"><i class="fas fa-floppy-disk"></i> 保存所有修改</button>';
+      panel.appendChild(div);
+    }
+  });
 }
 
 /* ── 测试 GitHub 连接（含写入测试）──────── */

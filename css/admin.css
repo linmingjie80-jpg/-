@@ -389,3 +389,13 @@ body {
 .staff-perms{margin:6px 0 14px;display:flex;flex-direction:column;gap:8px}
 .staff-perms .pm{display:flex;align-items:center;gap:8px;font-size:.9rem;cursor:pointer}
 .ir-sub{width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid #e7e2d8;border-radius:8px;font-size:.9rem;font-family:inherit}
+
+/* 每个标签底部的保存按钮 */
+.tab-save{margin-top:24px;display:flex;justify-content:center}
+.tab-save .btn-save{width:100%;max-width:420px;justify-content:center}
+/* 保存浮动提示 */
+.admin-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;
+  padding:12px 22px;border-radius:24px;font-size:.9rem;font-weight:600;z-index:9999;opacity:0;
+  transition:opacity .25s;max-width:90%;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.admin-toast.show{opacity:1}
+.admin-toast.ok{background:#1f8a4c}
