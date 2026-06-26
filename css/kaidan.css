@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════
+   kaidan.css — 工人开单页样式（手机优先）
+═══════════════════════════════════════════ */
+:root{
+  --gold:#c9a961; --gold-light:#e8d4a0;
+  --dark:#1a1a2e; --purple:#2d1b4e; --cream:#faf7f2;
+  --text:#222; --gray:#666; --line:#e7e2d8;
+  --green:#25D366; --green-dark:#128C7E; --red:#e2574c;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--cream); color:var(--text);
+  -webkit-tap-highlight-color:transparent;
+}
+.hidden{display:none !important}
+
+/* ── 顶栏 ── */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; color:#fff;
+  background:linear-gradient(135deg,var(--dark),var(--purple));
+}
+.topbar b{font-size:1.05rem}
+.topbar b em{color:var(--gold);font-style:normal}
+.topbar .who{font-size:.78rem;color:var(--gold-light)}
+.btn-logout{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;border-radius:20px;padding:6px 14px;font-size:.78rem;cursor:pointer;
+}
+
+/* ── 登录卡 ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(135deg,var(--dark),var(--purple));}
+.login-card{background:#fff;border-radius:var(--radius);padding:30px 24px;width:100%;max-width:360px;
+  box-shadow:0 20px 50px rgba(0,0,0,.3);text-align:center}
+.login-card h1{font-size:1.3rem;margin-bottom:4px}
+.login-card h1 em{color:var(--gold);font-style:normal}
+.login-card p{color:var(--gray);font-size:.85rem;margin-bottom:22px}
+.field{text-align:left;margin-bottom:14px}
+.field label{display:block;font-size:.8rem;font-weight:700;color:var(--gray);margin-bottom:6px}
+.field input,.field textarea,.field select{
+  width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
+  font-size:1rem;font-family:inherit;background:#fff;
+}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+.btn-primary{
+  width:100%;background:linear-gradient(135deg,var(--gold),#b8924a);color:#fff;border:none;
+  border-radius:10px;padding:14px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:4px;
+}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.err{color:var(--red);font-size:.82rem;margin-top:10px;min-height:1em}
+
+/* ── 主体 ── */
+.wrap{max-width:680px;margin:0 auto;padding:16px 14px 120px}
+.sec-title{font-size:.78rem;font-weight:800;color:var(--gray);letter-spacing:.5px;
+  margin:18px 4px 10px;text-transform:uppercase}
+
+/* 产品选择 */
+.prod-list{display:flex;flex-direction:column;gap:10px}
+.prod-row{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);
+  border-radius:12px;padding:10px 12px}
+.prod-row.on{border-color:var(--gold);box-shadow:0 2px 10px rgba(201,169,97,.18)}
+.prod-emoji{font-size:1.6rem;width:34px;text-align:center;flex:none}
+.prod-info{flex:1;min-width:0}
+.prod-info .nm{font-weight:700;font-size:.95rem;line-height:1.2}
+.prod-info .pr{color:var(--gold);font-weight:800;font-size:.9rem;margin-top:2px}
+.qty{display:flex;align-items:center;gap:0;flex:none}
+.qty button{width:34px;height:34px;border:1.5px solid var(--line);background:#fff;
+  font-size:1.2rem;font-weight:700;cursor:pointer;color:var(--purple)}
+.qty button:first-child{border-radius:9px 0 0 9px}
+.qty button:last-child{border-radius:0 9px 9px 0}
+.qty input{width:42px;height:34px;text-align:center;border:1.5px solid var(--line);border-left:0;border-right:0;
+  font-size:1rem;font-family:inherit;-moz-appearance:textfield}
+.qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* 客户 & 金额卡 */
+.card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-top:8px}
+.row2{display:flex;gap:10px}
+.row2 .field{flex:1}
+.amt-line{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:.92rem}
+.amt-line.total{border-top:2px dashed var(--line);margin-top:6px;padding-top:12px;font-size:1.15rem;font-weight:800}
+.amt-line.total .v{color:var(--red)}
+.amt-line .adj{width:110px}
+.amt-line .adj input{padding:8px 10px;text-align:right}
+
+/* 底部固定操作条 */
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;
+  border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;
+  box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.actionbar .total-mini{flex:1;display:flex;flex-direction:column;justify-content:center}
+.actionbar .total-mini small{font-size:.7rem;color:var(--gray)}
+.actionbar .total-mini b{font-size:1.25rem;color:var(--red)}
+.btn-submit{background:var(--green);color:#fff;border:none;border-radius:10px;padding:0 22px;
+  font-size:1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-submit:disabled{opacity:.5}
+
+/* 收据弹窗 */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:flex;
+  align-items:center;justify-content:center;padding:18px;overflow:auto}
+.modal-box{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:18px}
+.receipt{background:#fff;padding:20px;border:1px solid var(--line);border-radius:10px}
+.receipt h2{text-align:center;font-size:1.15rem}
+.receipt h2 em{color:var(--gold);font-style:normal}
+.receipt .meta{font-size:.78rem;color:var(--gray);text-align:center;margin:4px 0 12px;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.receipt .it{display:flex;justify-content:space-between;font-size:.86rem;padding:4px 0}
+.receipt .it small{color:var(--gray)}
+.receipt .sum{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+.receipt .sum div{display:flex;justify-content:space-between;font-size:.86rem;padding:2px 0}
+.receipt .sum .tt{font-weight:800;font-size:1.05rem;color:var(--red);border-top:1px solid var(--line);margin-top:6px;padding-top:6px}
+.receipt .cust{font-size:.8rem;color:var(--gray);margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;line-height:1.5}
+.receipt .thanks{text-align:center;font-size:.78rem;color:var(--gold);margin-top:12px}
+.modal-btns{display:flex;gap:8px;margin-top:14px}
+.modal-btns button{flex:1;border:none;border-radius:9px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer}
+.b-wa{background:var(--green);color:#fff}
+.b-img{background:var(--purple);color:#fff}
+.b-close{background:#eee;color:var(--text)}
+
+/* ── 老板：订单列表 ── */
+.stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.stat{flex:1;min-width:90px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font-size:1.4rem;color:var(--purple)}
+.stat small{font-size:.72rem;color:var(--gray)}
+.ord{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.ord-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ord-top b{font-size:1.05rem;color:var(--red)}
+.ord-top .st{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.st.pending{background:#fff3e0;color:#e69100}
+.st.paid{background:#e8f5e9;color:#2e9e4f}
+.st.shipped{background:#e3f2fd;color:#2b7cd3}
+.ord-meta{font-size:.78rem;color:var(--gray);line-height:1.5}
+.ord-items{font-size:.82rem;margin:6px 0;color:var(--text)}
+.ord-actions{display:flex;gap:6px;margin-top:8px}
+.ord-actions button{flex:1;border:1px solid var(--line);background:#fafafa;border-radius:8px;
+  padding:7px;font-size:.78rem;cursor:pointer}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;
+  padding:10px 18px;border-radius:24px;font-size:.85rem;z-index:60;opacity:0;transition:opacity .25s}
+.toast.show{opacity:1}

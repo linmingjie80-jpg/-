@@ -46,6 +46,7 @@ var DEFAULT = {
     { title: '每两周一次', desc: '催花期每 2 周用一次，平日保养每月 1–2 次即可。' }
   ],
   cloudinary: { cloud: '', preset: '' }, /* 视频直传设置 */
+  supabase:   { url: '', anon: '' },     /* 开单系统后端设置 */
   /* 动态内容翻译（deepMerge 会用 admin 翻译覆盖预设值） */
   i18n: {
     en: {

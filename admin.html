@@ -250,6 +250,30 @@
       </div>
     </div>
 
+    <!-- 开单系统设置（Supabase）-->
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">🧾</span> 开单系统设置（Supabase）</div>
+      <div class="tip">
+        <i class="fas fa-circle-info"></i>
+        填写后，工人就能在 <strong>kaidan.html</strong> 开单页登录开单。<br>
+        <strong>设置步骤：</strong>
+        ① 前往 <strong>supabase.com</strong> 注册免费账号 → 建一个项目（区域选 Singapore）→
+        ② 左侧 <strong>SQL Editor</strong> 粘贴 supabase-setup.sql 内容并 Run（先改好里面的 PIN）→
+        ③ 左侧 <strong>Project Settings → API</strong> 复制 <strong>Project URL</strong> 和 <strong>anon public</strong> key →
+        ④ 填入下方 → 点「保存所有修改」。
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Project URL</label>
+          <input type="text" id="sb-url" placeholder="例：https://abcd1234.supabase.co">
+        </div>
+        <div class="field">
+          <label>anon public key</label>
+          <input type="text" id="sb-anon" placeholder="eyJhbGci...（很长的一串）">
+        </div>
+      </div>
+    </div>
+
     <!-- 修改密码 -->
     <div class="card pw-section">
       <div class="card-title"><span class="ct-icon">🔒</span> 修改管理密码</div>

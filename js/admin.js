@@ -107,6 +107,13 @@ function fillForms() {
   if (clCloudEl)  clCloudEl.value  = cl.cloud  || '';
   if (clPresetEl) clPresetEl.value = cl.preset || '';
 
+  /* Supabase 开单系统设置 */
+  var sb = d.supabase || { url: '', anon: '' };
+  var sbUrlEl  = document.getElementById('sb-url');
+  var sbAnonEl = document.getElementById('sb-anon');
+  if (sbUrlEl)  sbUrlEl.value  = sb.url  || '';
+  if (sbAnonEl) sbAnonEl.value = sb.anon || '';
+
   /* GitHub Token（存在本设备 localStorage，不写入数据文件） */
   var ghEl = document.getElementById('gh-token');
   if (ghEl) ghEl.value = localStorage.getItem('fgh_gh_token') || '';
@@ -260,6 +267,13 @@ function saveAll() {
   var clPresetEl2 = document.getElementById('cl-preset');
   if (clCloudEl2)  d.cloudinary.cloud  = clCloudEl2.value.trim();
   if (clPresetEl2) d.cloudinary.preset = clPresetEl2.value.trim();
+
+  /* Supabase 开单系统设置 */
+  if (!d.supabase) d.supabase = { url: '', anon: '' };
+  var sbUrlEl2  = document.getElementById('sb-url');
+  var sbAnonEl2 = document.getElementById('sb-anon');
+  if (sbUrlEl2)  d.supabase.url  = sbUrlEl2.value.trim();
+  if (sbAnonEl2) d.supabase.anon = sbAnonEl2.value.trim();
 
   /* GitHub Token — 存在本设备，不写入数据文件 */
   var ghEl2   = document.getElementById('gh-token');
