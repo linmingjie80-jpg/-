@@ -247,8 +247,9 @@ window.Invoices = (function () {
       + '<label class="ir-hdr"><input type="checkbox" data-f="isHeader" ' + (isH ? 'checked' : '') + '> 标题行</label>'
       + '<input class="ir-desc" data-f="desc" placeholder="' + (isH ? '标题 / 备注文字' : '产品 / 描述') + '" value="' + esc(it.desc) + '">'
       + '<button class="ir-del" data-del="' + i + '">×</button></div>'
-      + (!isH ? '<div class="ir-bot">'
-      +   '<input data-f="qtyText" placeholder="数量文字 如 2 瓶" value="' + esc(it.qtyText || '') + '" class="w-qt">'
+      + (!isH ? '<input class="ir-sub" data-f="subdesc" placeholder="副标题 / 规格（选填，显示在描述下方）" value="' + esc(it.subdesc || '') + '">'
+      + '<div class="ir-bot">'
+      +   '<input data-f="qtyText" placeholder="数量单位 如 瓶/盒（选填）" value="' + esc(it.qtyText || '') + '" class="w-qt">'
       +   '<input type="number" data-f="qty" value="' + (it.qty || 1) + '" placeholder="数量" class="w-qty">'
       +   '<input type="number" data-f="price" value="' + (it.price || '') + '" placeholder="单价" class="w-pr">'
       +   '<span class="ir-amt">' + money(itemAmount(it)) + '</span></div>' : '') + '</div>';

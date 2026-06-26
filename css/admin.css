@@ -388,3 +388,4 @@ body {
 /* 员工权限勾选 */
 .staff-perms{margin:6px 0 14px;display:flex;flex-direction:column;gap:8px}
 .staff-perms .pm{display:flex;align-items:center;gap:8px;font-size:.9rem;cursor:pointer}
+.ir-sub{width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid #e7e2d8;border-radius:8px;font-size:.9rem;font-family:inherit}
