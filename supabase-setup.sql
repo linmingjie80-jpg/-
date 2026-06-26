@@ -162,7 +162,45 @@ begin
   delete from customers where id=p_id;
 end; $$;
 
+-- ── 员工管理（仅老板，供后台 admin 员工管理页用）──────────
+create or replace function public.admin_list_workers(p_name text, p_pin text)
+returns table(id bigint, name text, is_boss boolean, active boolean)
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not exists(select 1 from workers where name=p_name and active and is_boss and pin_hash=crypt(p_pin,pin_hash)) then
+    raise exception '无权限'; end if;
+  return query select w.id, w.name, w.is_boss, w.active from workers w order by w.id;
+end; $$;
+
+create or replace function public.admin_save_worker(p_name text, p_pin text, p_target text, p_new_pin text, p_is_boss boolean)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not exists(select 1 from workers where name=p_name and active and is_boss and pin_hash=crypt(p_pin,pin_hash)) then
+    raise exception '无权限'; end if;
+  if p_target = p_name then p_is_boss := true; end if;   -- 不能取消自己的老板身份
+  if exists(select 1 from workers where name=p_target) then
+    update workers set is_boss=p_is_boss, active=true,
+      pin_hash = case when coalesce(p_new_pin,'')<>'' then crypt(p_new_pin, gen_salt('bf')) else pin_hash end
+    where name=p_target;
+  else
+    if coalesce(p_new_pin,'')='' then raise exception '新员工必须设 PIN'; end if;
+    insert into workers(name, pin_hash, is_boss) values (p_target, crypt(p_new_pin, gen_salt('bf')), p_is_boss);
+  end if;
+end; $$;
+
+create or replace function public.admin_set_active(p_name text, p_pin text, p_target text, p_active boolean)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not exists(select 1 from workers where name=p_name and active and is_boss and pin_hash=crypt(p_pin,pin_hash)) then
+    raise exception '无权限'; end if;
+  if p_target = p_name and not p_active then raise exception '不能停用自己'; end if;
+  update workers set active=p_active where name=p_target;
+end; $$;
+
 -- ── 开放给前端的函数（chk / set_worker 不开放）─────────────
+grant execute on function public.admin_list_workers(text,text)                             to anon;
+grant execute on function public.admin_save_worker(text,text,text,text,boolean)            to anon;
+grant execute on function public.admin_set_active(text,text,text,boolean)                  to anon;
 grant execute on function public.worker_login(text,text)                                   to anon;
 grant execute on function public.next_invoice_number(text,text)                            to anon;
 grant execute on function public.save_invoice(text,text,bigint,text,text,text,text,text,text,jsonb,numeric,numeric,numeric,numeric,text,text) to anon;

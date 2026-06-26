@@ -218,6 +218,15 @@ body {
 .btn-save:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .btn-save i { font-size: 1.1rem; }
 
+/* 员工管理 */
+.hidden { display: none !important; }
+.btn-mini {
+  border: 1px solid var(--line, #e7e2d8); background: #fafafa; color: #333;
+  border-radius: 8px; padding: 7px 13px; font-size: .82rem; cursor: pointer;
+  font-family: inherit;
+}
+.btn-mini:hover { background: #f0ece2; }
+
 /* ── 视频上传按钮 ────────────────────────── */
 .upload-row {
   display: flex; align-items: center; gap: 12px;

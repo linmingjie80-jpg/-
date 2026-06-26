@@ -59,6 +59,7 @@
     <button class="tab-btn"        onclick="showTab('videos',   this)" role="tab"><i class="fas fa-play-circle"></i>教学视频</button>
     <button class="tab-btn"        onclick="showTab('products', this)" role="tab"><i class="fas fa-flask"></i>     药水产品</button>
     <button class="tab-btn"        onclick="showTab('steps',    this)" role="tab"><i class="fas fa-list-ol"></i>   使用步骤</button>
+    <button class="tab-btn"        onclick="showTab('staff',    this)" role="tab"><i class="fas fa-users"></i>     员工管理</button>
     <button class="tab-btn"        onclick="showTab('settings', this)" role="tab"><i class="fas fa-gear"></i>      设置</button>
   </div>
 
@@ -182,6 +183,50 @@
     <div class="card">
       <div class="card-title"><span class="ct-icon">📋</span> 使用步骤（共 4 步）</div>
       <div id="steps-fields"><!-- 由 admin.js 填充 --></div>
+    </div>
+  </div>
+
+  <!-- ── Tab：员工管理 ── -->
+  <div class="tab-panel" id="tab-staff" role="tabpanel">
+    <!-- 解锁 -->
+    <div class="card" id="staff-lock" style="max-width:440px">
+      <div class="card-title"><span class="ct-icon">👥</span> 员工管理</div>
+      <div class="tip">
+        <i class="fas fa-circle-info"></i>
+        输入你的<strong>开单老板账号</strong>（名字 + PIN）解锁，即可加员工、改 PIN、停用离职员工，无需碰 SQL。
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>老板名字</label>
+        <input type="text" id="staff-boss-name" placeholder="例：阿迪">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>老板 PIN</label>
+        <input type="password" id="staff-boss-pin" inputmode="numeric" placeholder="你的开单 PIN">
+      </div>
+      <button class="btn-save" id="staff-unlock" style="width:100%">解锁员工管理</button>
+      <div id="staff-lock-err" style="color:#e2574c;font-size:.85rem;margin-top:10px;min-height:1em"></div>
+    </div>
+
+    <!-- 管理界面 -->
+    <div id="staff-main" class="hidden">
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">➕</span> 添加 / 修改员工</div>
+        <div class="tip"><i class="fas fa-circle-info"></i>
+          填同一个名字 = 修改该员工（PIN 留空则不改 PIN）。勾「老板」可看全部发票。</div>
+        <div class="form-row">
+          <div class="field"><label>名字</label><input type="text" id="staff-name" placeholder="员工名字"></div>
+          <div class="field"><label>PIN（4-6 位数字）</label><input type="text" id="staff-pin" inputmode="numeric" placeholder="新员工必填"></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.9rem;margin:6px 0 14px">
+          <input type="checkbox" id="staff-isboss"> 设为老板（可查看全部发票和营业额）
+        </label>
+        <button class="btn-save" id="staff-add">保存员工</button>
+        <div id="staff-add-msg" style="font-size:.85rem;margin-top:10px;min-height:1em"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📋</span> 员工列表</div>
+        <div id="staff-list"><!-- 由 staff.js 填充 --></div>
+      </div>
     </div>
   </div>
 
@@ -333,5 +378,6 @@
 <!-- 先加载共享数据，再加载管理逻辑 -->
 <script src="js/data.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/staff.js"></script>
 </body>
 </html>
