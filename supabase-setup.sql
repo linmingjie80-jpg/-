@@ -39,7 +39,7 @@ alter table public.orders  enable row level security;
 
 -- ── 新增/修改员工（老板在 SQL Editor 里调用，不开放给前端）──
 create or replace function public.set_worker(p_name text, p_pin text, p_is_boss boolean default false)
-returns void language sql security definer set search_path = public as $$
+returns void language sql security definer set search_path = public, extensions as $$
   insert into workers(name, pin_hash, is_boss)
   values (p_name, crypt(p_pin, gen_salt('bf')), p_is_boss)
   on conflict (name) do update
@@ -51,7 +51,7 @@ $$;
 -- ── 登录校验：PIN 对则返回员工信息 ──────────────────────────
 create or replace function public.worker_login(p_name text, p_pin text)
 returns table(id bigint, name text, is_boss boolean)
-language sql security definer set search_path = public as $$
+language sql security definer set search_path = public, extensions as $$
   select id, name, is_boss from workers
   where name = p_name and active and pin_hash = crypt(p_pin, pin_hash);
 $$;
@@ -62,7 +62,7 @@ create or replace function public.create_order(
   p_customer_name text, p_customer_phone text, p_customer_address text,
   p_items jsonb, p_subtotal numeric, p_discount numeric,
   p_shipping numeric, p_total numeric, p_note text
-) returns bigint language plpgsql security definer set search_path = public as $$
+) returns bigint language plpgsql security definer set search_path = public, extensions as $$
 declare v_id bigint;
 begin
   if not exists (select 1 from workers where name = p_name and active and pin_hash = crypt(p_pin, pin_hash)) then
@@ -78,7 +78,7 @@ end; $$;
 
 -- ── 老板查看全部订单（仅 is_boss 可调用）────────────────────
 create or replace function public.list_orders(p_name text, p_pin text, p_limit int default 300)
-returns setof orders language plpgsql security definer set search_path = public as $$
+returns setof orders language plpgsql security definer set search_path = public, extensions as $$
 begin
   if not exists (select 1 from workers where name = p_name and active and is_boss and pin_hash = crypt(p_pin, pin_hash)) then
     raise exception '无权限';
@@ -88,7 +88,7 @@ end; $$;
 
 -- ── 老板改订单状态（pending → paid → shipped）───────────────
 create or replace function public.update_order_status(p_name text, p_pin text, p_id bigint, p_status text)
-returns void language plpgsql security definer set search_path = public as $$
+returns void language plpgsql security definer set search_path = public, extensions as $$
 begin
   if not exists (select 1 from workers where name = p_name and active and is_boss and pin_hash = crypt(p_pin, pin_hash)) then
     raise exception '无权限';
