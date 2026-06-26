@@ -168,6 +168,10 @@
     "cloud": "dihle3cgw",
     "preset": "fuguihua"
   },
+  "supabase": {
+    "url": "https://wetbqpkyuztsbwmpepnu.supabase.co",
+    "anon": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndldGJxcGt5dXp0c2J3bXBlcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTk3MTYsImV4cCI6MjA5ODAzNTcxNn0.j9Bl8hcspd3tlssAc3aQFpvevfocJzPeQGTpgUi5Il0"
+  },
   "i18n": {
     "en": {
       "hero_tag": "🌸 Professional wealthy flower cultivation and maintenance",
