@@ -15,19 +15,21 @@
 <div id="gate">
   <div class="gate-box">
     <div class="gate-logo">🌸</div>
-    <h2>管理后台登入</h2>
-    <p>请输入管理员密码</p>
+    <h2>富贵花开 后台登入</h2>
+    <p>用你的名字 + PIN 登录（老板看全部，工人只看开单）</p>
+    <div class="pw-wrap" style="margin-bottom:10px">
+      <input type="text" id="login-name" placeholder="名字" autocomplete="username">
+    </div>
     <div class="pw-wrap">
-      <input type="password" id="pw-input" placeholder="输入密码" autocomplete="current-password">
+      <input type="password" id="pw-input" placeholder="PIN 密码" inputmode="numeric" autocomplete="current-password">
       <button class="pw-eye" onclick="togglePw('pw-input', this)" tabindex="-1" aria-label="显示/隐藏密码">
         <i class="fas fa-eye"></i>
       </button>
     </div>
     <div class="gate-err" id="gate-err"></div>
     <button class="btn-login" onclick="doLogin()">
-      <i class="fas fa-lock-open"></i>&nbsp; 进入后台
+      <i class="fas fa-lock-open"></i>&nbsp; 登录
     </button>
-    <p class="gate-hint">首次使用默认密码：admin888</p>
   </div>
 </div>
 
@@ -41,6 +43,7 @@
       富贵花 <span>管理后台</span>
     </h1>
     <div class="header-btns">
+      <span id="admin-who" style="color:#c9a961;font-size:.82rem;margin-right:6px;align-self:center"></span>
       <a href="index.html" target="_blank" rel="noopener" class="btn-preview">
         <i class="fas fa-eye"></i>
         <span class="preview-text">查看网站</span>
@@ -53,7 +56,8 @@
 
   <!-- Tab 栏 -->
   <div class="tab-bar" role="tablist">
-    <button class="tab-btn active" onclick="showTab('contact',  this)" role="tab"><i class="fas fa-phone"></i>     联系方式</button>
+    <button class="tab-btn active" onclick="showTab('invoices', this)" role="tab"><i class="fas fa-file-invoice-dollar"></i> 开单</button>
+    <button class="tab-btn"        onclick="showTab('contact',  this)" role="tab"><i class="fas fa-phone"></i>     联系方式</button>
     <button class="tab-btn"        onclick="showTab('hero',     this)" role="tab"><i class="fas fa-star"></i>      首页横幅</button>
     <button class="tab-btn"        onclick="showTab('stats',    this)" role="tab"><i class="fas fa-chart-bar"></i> 数据栏</button>
     <button class="tab-btn"        onclick="showTab('videos',   this)" role="tab"><i class="fas fa-play-circle"></i>教学视频</button>
@@ -63,8 +67,13 @@
     <button class="tab-btn"        onclick="showTab('settings', this)" role="tab"><i class="fas fa-gear"></i>      设置</button>
   </div>
 
+  <!-- ── Tab：开单（发票）── -->
+  <div class="tab-panel active" id="tab-invoices" role="tabpanel">
+    <div id="inv-root"><p style="color:#888;padding:20px">载入中…</p></div>
+  </div>
+
   <!-- ── Tab：联系方式 ── -->
-  <div class="tab-panel active" id="tab-contact" role="tabpanel">
+  <div class="tab-panel" id="tab-contact" role="tabpanel">
     <div class="tip">
       <i class="fas fa-circle-info"></i>
       修改后点击底部「保存所有修改」，网站上所有 WhatsApp 链接和电话号码会同步更新。
@@ -188,38 +197,23 @@
 
   <!-- ── Tab：员工管理 ── -->
   <div class="tab-panel" id="tab-staff" role="tabpanel">
-    <!-- 解锁 -->
-    <div class="card" id="staff-lock" style="max-width:440px">
-      <div class="card-title"><span class="ct-icon">👥</span> 员工管理</div>
-      <div class="tip">
-        <i class="fas fa-circle-info"></i>
-        输入你的<strong>开单老板账号</strong>（名字 + PIN）解锁，即可加员工、改 PIN、停用离职员工，无需碰 SQL。
-      </div>
-      <div class="field" style="margin-bottom:12px">
-        <label>老板名字</label>
-        <input type="text" id="staff-boss-name" placeholder="例：阿迪">
-      </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>老板 PIN</label>
-        <input type="password" id="staff-boss-pin" inputmode="numeric" placeholder="你的开单 PIN">
-      </div>
-      <button class="btn-save" id="staff-unlock" style="width:100%">解锁员工管理</button>
-      <div id="staff-lock-err" style="color:#e2574c;font-size:.85rem;margin-top:10px;min-height:1em"></div>
-    </div>
-
-    <!-- 管理界面 -->
-    <div id="staff-main" class="hidden">
+    <div id="staff-main">
       <div class="card">
         <div class="card-title"><span class="ct-icon">➕</span> 添加 / 修改员工</div>
         <div class="tip"><i class="fas fa-circle-info"></i>
-          填同一个名字 = 修改该员工（PIN 留空则不改 PIN）。勾「老板」可看全部发票。</div>
+          填同一个名字 = 修改该员工（PIN 留空则不改 PIN）。下面勾选要开放给该员工的权限，<strong>不勾的就是不能用</strong>。</div>
         <div class="form-row">
           <div class="field"><label>名字</label><input type="text" id="staff-name" placeholder="员工名字"></div>
           <div class="field"><label>PIN（4-6 位数字）</label><input type="text" id="staff-pin" inputmode="numeric" placeholder="新员工必填"></div>
         </div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:.9rem;margin:6px 0 14px">
-          <input type="checkbox" id="staff-isboss"> 设为老板（可查看全部发票和营业额）
-        </label>
+        <div class="staff-perms">
+          <label class="pm"><input type="checkbox" id="staff-isboss"> <b>老板</b>（看全部发票+营业额，能管理员工和网站）</label>
+          <label class="pm"><input type="checkbox" id="perm-inv_view_all"> 查看所有人的发票</label>
+          <label class="pm"><input type="checkbox" id="perm-inv_delete"> 删除发票</label>
+          <label class="pm"><input type="checkbox" id="perm-inv_discount"> 开单时给折扣</label>
+          <label class="pm"><input type="checkbox" id="perm-cust_manage"> 管理客户库（删客户）</label>
+          <label class="pm"><input type="checkbox" id="perm-site"> 编辑网站内容（产品/价格/横幅等）</label>
+        </div>
         <button class="btn-save" id="staff-add">保存员工</button>
         <div id="staff-add-msg" style="font-size:.85rem;margin-top:10px;min-height:1em"></div>
       </div>
@@ -376,8 +370,11 @@
 </div>
 
 <!-- 先加载共享数据，再加载管理逻辑 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/data.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/kaidan.js"></script>
 <script src="js/staff.js"></script>
 </body>
 </html>

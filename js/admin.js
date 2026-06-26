@@ -18,44 +18,79 @@ function hashPw(pw) {
     });
 }
 
-/* ── 登入 / 登出 ─────────────────────────── */
-function doLogin() {
-  var input = document.getElementById('pw-input').value;
-  if (!input) return;
+/* ── Supabase 配置 & RPC（开单/员工系统共用）── */
+function sbCfg() {
+  var d = (typeof getData === 'function') ? getData() : {};
+  var s = (d && d.supabase) || {};
+  var u = document.getElementById('sb-url'), a = document.getElementById('sb-anon');
+  var url  = (u && u.value) ? u.value.trim() : (s.url || '');
+  var anon = (a && a.value) ? a.value.trim() : (s.anon || '');
+  return { url: (url || '').trim(), anon: (anon || '').trim() };
+}
+function sbRpc(fn, params) {
+  var cfg = sbCfg();
+  if (!cfg.url || !cfg.anon) return Promise.reject(new Error('系统未配置 Supabase，请联系开发者'));
+  return fetch(cfg.url + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: { 'apikey': cfg.anon, 'Authorization': 'Bearer ' + cfg.anon, 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  }).then(function (r) {
+    return r.text().then(function (t) {
+      var dt; try { dt = t ? JSON.parse(t) : null; } catch (e) { dt = t; }
+      if (!r.ok) throw new Error((dt && dt.message) || ('请求失败 ' + r.status));
+      return dt;
+    });
+  });
+}
 
-  function attempt(hash) {
-    var d       = getData();
-    var isHash  = d.pw && d.pw.length === 64;
-    var matched = isHash ? (hash !== null && hash === d.pw) : (input === d.pw);
-    if (matched) {
-      if (!isHash && hash) { d.pw = hash; saveData(d); } /* 升级明文密码为哈希 */
-      document.getElementById('gate-err').style.display = 'none';
-      sessionStorage.setItem('fgh_admin', '1');
+/* ── 登录态 ── */
+var SESSION = null;
+function getSession() { try { return JSON.parse(sessionStorage.getItem('fgh_session')); } catch (e) { return null; } }
+function canSite() { return !!(SESSION && (SESSION.is_boss || (SESSION.perms || []).indexOf('site') > -1)); }
+
+/* ── PIN 登入（老板 / 工人共用）── */
+function doLogin() {
+  var nameEl = document.getElementById('login-name');
+  var name = (nameEl ? nameEl.value : '').trim();
+  var pin  = (document.getElementById('pw-input').value || '').trim();
+  var err  = document.getElementById('gate-err');
+  if (!name || !pin) { err.textContent = '请输入名字和 PIN'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  sbRpc('worker_login', { p_name: name, p_pin: pin }).then(function (rows) {
+    if (rows && rows.length) {
+      SESSION = { name: rows[0].name, pin: pin, is_boss: !!rows[0].is_boss, perms: rows[0].perms || [] };
+      sessionStorage.setItem('fgh_session', JSON.stringify(SESSION));
       showAdmin();
     } else {
-      var err = document.getElementById('gate-err');
-      if (isHash && hash === null) {
-        err.textContent = '密码验证需要 HTTPS 环境，请通过 GitHub Pages 链接打开后台';
-      } else {
-        err.textContent = '密码错误，请重试';
-      }
-      err.style.display = 'block';
+      err.textContent = '名字或 PIN 错误'; err.style.display = 'block';
       document.getElementById('pw-input').value = '';
-      document.getElementById('pw-input').focus();
     }
-  }
-
-  /* crypto.subtle 在 file:// 上部分浏览器不可用，降级为明文比对 */
-  if (window.crypto && window.crypto.subtle) {
-    hashPw(input).then(function (hash) { attempt(hash); }).catch(function () { attempt(null); });
-  } else {
-    attempt(null);
-  }
+  }).catch(function (e) { err.textContent = e.message || '登录失败'; err.style.display = 'block'; });
 }
 
 function logout() {
-  sessionStorage.removeItem('fgh_admin');
+  sessionStorage.removeItem('fgh_session');
   location.reload();
+}
+
+/* ── 按角色/权限显示标签 ── */
+function applyAccess() {
+  var siteTabs = ['contact', 'hero', 'stats', 'videos', 'products', 'steps'];
+  var bossTabs = ['settings', 'staff'];
+  var site = canSite(), boss = !!(SESSION && SESSION.is_boss);
+  document.querySelectorAll('.tab-btn').forEach(function (b) {
+    var m = (b.getAttribute('onclick') || '').match(/showTab\('([^']+)'/);
+    if (!m) return;
+    var name = m[1], show = true;
+    if (name === 'invoices') show = true;
+    else if (siteTabs.indexOf(name) > -1) show = site;
+    else if (bossTabs.indexOf(name) > -1) show = boss;
+    b.style.display = show ? '' : 'none';
+  });
+  var who = document.getElementById('admin-who');
+  if (who) who.textContent = SESSION.name + (SESSION.is_boss ? '（老板）' : '');
+  var first = Array.prototype.filter.call(document.querySelectorAll('.tab-btn'), function (b) { return b.style.display !== 'none'; })[0];
+  if (first) first.click();
 }
 
 /* ── 显示 / 隐藏密码 ─────────────────────── */
@@ -74,15 +109,26 @@ function showTab(name, btn) {
   var panel = document.getElementById('tab-' + name);
   if (panel) panel.classList.add('active');
   if (btn)   btn.classList.add('active');
+  /* 打开「开单」/「员工管理」时初始化对应模块 */
+  if (name === 'invoices' && window.Invoices && SESSION) {
+    var r = document.getElementById('inv-root'); if (r) Invoices.init(r, SESSION);
+  }
+  if (name === 'staff' && window.StaffMgr) StaffMgr.init();
 }
 
 /* ── 显示管理面板 ────────────────────────── */
 function showAdmin() {
+  if (!SESSION) SESSION = getSession();
+  if (!SESSION) return;
   document.getElementById('gate').style.display  = 'none';
   document.getElementById('panel').style.display = 'block';
-  document.getElementById('save-bar').style.display = 'flex';
-  /* 先从 GitHub 拉取最新数据，再填充表单 */
-  loadData(function () { fillForms(); });
+  if (canSite()) {
+    document.getElementById('save-bar').style.display = 'flex';
+    loadData(function () { fillForms(); });       /* 拉最新数据填表（仅网站管理）*/
+  } else {
+    document.getElementById('save-bar').style.display = 'none';
+  }
+  applyAccess();   /* 按权限显示标签，并激活第一个可见标签 */
 }
 
 /* ── 填充表单 ────────────────────────────── */
@@ -680,11 +726,13 @@ function handleVideoUpload(idx, input) {
 
 /* ── 页面初始化 ─────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
-  if (sessionStorage.getItem('fgh_admin') === '1') showAdmin();
+  /* 先拉取最新数据（含 Supabase 配置），再决定是否自动进入 */
+  loadData(function () {
+    var s = getSession();
+    if (s && s.name) { SESSION = s; showAdmin(); }
+  });
   var pwInput = document.getElementById('pw-input');
-  if (pwInput) {
-    pwInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doLogin();
-    });
-  }
+  if (pwInput) pwInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+  var nameInput = document.getElementById('login-name');
+  if (nameInput) nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
 });
