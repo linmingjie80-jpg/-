@@ -169,7 +169,7 @@ create function public.admin_list_workers(p_name text, p_pin text)
 returns table(id bigint, name text, is_boss boolean, active boolean, perms text[])
 language plpgsql security definer set search_path = public, extensions as $$
 begin
-  if not exists(select 1 from workers where name=p_name and active and is_boss and pin_hash=crypt(p_pin,pin_hash)) then
+  if not exists(select 1 from workers w where w.name=p_name and w.active and w.is_boss and w.pin_hash=crypt(p_pin,w.pin_hash)) then
     raise exception '无权限'; end if;
   return query select w.id, w.name, w.is_boss, w.active, w.perms from workers w order by w.id;
 end; $$;
