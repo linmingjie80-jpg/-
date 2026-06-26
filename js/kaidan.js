@@ -461,7 +461,7 @@
       + '.tot-table td{padding:3px 6px}'
       + '.tot-table tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;font-weight:700;padding:5px 6px}'
       + '.notes-sec{margin-top:14px;font-size:11px;line-height:1.8}'
-      + '.sig-row{display:flex;justify-content:space-between;margin-top:40px;font-size:12px}'
+      + '.sig-row{display:flex;justify-content:space-between;margin-top:90px;font-size:12px}'
       + '.sig-cell{width:44%;border-top:1px solid #000;padding-top:6px;line-height:1.9}'
       + '.sig-cell.right{text-align:center}'
       + '</style>';
