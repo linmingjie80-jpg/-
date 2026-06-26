@@ -168,6 +168,7 @@ drop function if exists public.admin_list_workers(text, text);
 create function public.admin_list_workers(p_name text, p_pin text)
 returns table(id bigint, name text, is_boss boolean, active boolean, perms text[])
 language plpgsql security definer set search_path = public, extensions as $$
+#variable_conflict use_column
 begin
   if not exists(select 1 from workers w where w.name=p_name and w.active and w.is_boss and w.pin_hash=crypt(p_pin,w.pin_hash)) then
     raise exception '无权限'; end if;
