@@ -82,7 +82,7 @@ function applyAccess() {
     var m = (b.getAttribute('onclick') || '').match(/showTab\('([^']+)'/);
     if (!m) return;
     var name = m[1], show = true;
-    if (name === 'invoices') show = true;
+    if (name === 'invoices' || name === 'photos') show = true;
     else if (siteTabs.indexOf(name) > -1) show = site;
     else if (bossTabs.indexOf(name) > -1) show = boss;
     b.style.display = show ? '' : 'none';
@@ -113,6 +113,7 @@ function showTab(name, btn) {
   if (name === 'invoices' && window.Invoices && SESSION) {
     var r = document.getElementById('inv-root'); if (r) Invoices.init(r, SESSION);
   }
+  if (name === 'photos' && window.Photos && SESSION) Photos.init();
   if (name === 'staff' && window.StaffMgr) StaffMgr.init();
 }
 

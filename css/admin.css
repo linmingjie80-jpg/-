@@ -399,3 +399,18 @@ body {
   transition:opacity .25s;max-width:90%;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .admin-toast.show{opacity:1}
 .admin-toast.ok{background:#1f8a4c}
+
+/* ═══════════ 相册 ═══════════ */
+.ph-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ph-upbtn{cursor:pointer;white-space:nowrap;padding:11px 18px}
+.ph-upbtn input{display:none}
+#ph-search{flex:1;min-width:180px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.95rem;font-family:inherit}
+.ph-prog{margin-top:10px;font-size:.85rem;color:#c9a961;font-weight:600}
+.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ph-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.ph-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#f0ece2}
+.ph-name{border:none;border-top:1px solid #f0f0f0;padding:8px 10px;font-size:.85rem;font-family:inherit;width:100%;outline:none}
+.ph-name:focus{background:#fff8e1}
+.ph-del{border:none;border-top:1px solid #f0f0f0;background:#fafafa;color:#e2574c;padding:7px;font-size:.78rem;cursor:pointer;font-family:inherit}
+.ph-del:hover{background:#fdecea}
+@media(max-width:520px){.ph-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}}

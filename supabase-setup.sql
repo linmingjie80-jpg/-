@@ -214,6 +214,53 @@ grant execute on function public.admin_list_workers(text,text)                  
 grant execute on function public.admin_save_worker(text,text,text,text,boolean,text[])     to anon;
 grant execute on function public.admin_set_active(text,text,text,boolean)                  to anon;
 
+-- ── 相册（1000+ 照片 + 名字 + 搜索）──────────────────────────
+create table if not exists public.photos (
+  id bigint generated always as identity primary key,
+  name text not null default '',
+  url text not null,
+  created_at timestamptz default now()
+);
+create index if not exists photos_name_idx on public.photos (lower(name));
+alter table public.photos enable row level security;
+
+create or replace function public.list_photos(p_name text, p_pin text, p_q text default '', p_limit int default 60, p_offset int default 0)
+returns setof photos language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not chk(p_name, p_pin) then raise exception '账号或 PIN 错误'; end if;
+  return query select * from photos
+    where (coalesce(p_q,'') = '' or photos.name ilike '%'||p_q||'%')
+    order by created_at desc limit greatest(p_limit,1) offset greatest(p_offset,0);
+end; $$;
+
+create or replace function public.save_photo(p_name text, p_pin text, p_pname text, p_url text)
+returns bigint language plpgsql security definer set search_path = public, extensions as $$
+declare v_id bigint;
+begin
+  if not chk(p_name, p_pin) then raise exception '账号或 PIN 错误'; end if;
+  insert into photos(name, url) values (coalesce(p_pname,''), p_url) returning id into v_id;
+  return v_id;
+end; $$;
+
+create or replace function public.update_photo(p_name text, p_pin text, p_id bigint, p_pname text)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not chk(p_name, p_pin) then raise exception '账号或 PIN 错误'; end if;
+  update photos set name = coalesce(p_pname,'') where id = p_id;
+end; $$;
+
+create or replace function public.delete_photo(p_name text, p_pin text, p_id bigint)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not chk(p_name, p_pin) then raise exception '账号或 PIN 错误'; end if;
+  delete from photos where id = p_id;
+end; $$;
+
+grant execute on function public.list_photos(text,text,text,int,int)  to anon;
+grant execute on function public.save_photo(text,text,text,text)      to anon;
+grant execute on function public.update_photo(text,text,bigint,text)  to anon;
+grant execute on function public.delete_photo(text,text,bigint)       to anon;
+
 -- ════════════════════════════════════════════════════════════
 --  首次安装才需要：创建账号（已装好别再跑，会重置 PIN）
 -- ════════════════════════════════════════════════════════════
